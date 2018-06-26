@@ -31,11 +31,11 @@ def viewRun(folder_name,run_name):
 
 def safeMongoClient():
     client = MongoClient()
-    ipdb.set_trace()
     ## won't work because client is lazy loaded 
     if client== None:
         print("client is NoneType")
         raise "Cannot connect to MongoDB!"
+    return client
 
 class Database():
     def __init__(self):
