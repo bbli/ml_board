@@ -4,7 +4,8 @@ import ipdb
 
 class Database():
     def __init__(self):
-        self.client = safeMongoClient()
+        self.client = MongoClient()
+        self.checkConnection()
     ## Database utilities
     def removeFolder(self,folder_name):
         self.client.drop_database(folder_name)
@@ -27,18 +28,22 @@ class Database():
             print(doc)
     def close(self):
         self.client.close()
-    ## Connection utilties
-    def check_connection(self):
-       t = Thread(target=self.test_insert,args=(self.experiment,)) 
+
+    ## Connection utilties, not meant to be used by user
+    def checkConnection(self):
+       t = Thread(target=self.testInsert) 
        t.start()
        t.join(2)
        if t.is_alive():
            raise Exception("Cannot cannot to MongoDB")
 
-    @staticmethod
-    def test_insert(experiment):
+    def testInsert(self):
+        experiment = self.client['test_db']['test_collection']
         experiment.insert({"Test":1})
         experiment.remove({"Test":1})
+
+
+
 if __name__ == '__main__':
     database = Database()
     database.client['test_db']['test_collection'].insert_one({"Test":"test"})

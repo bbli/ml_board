@@ -6,15 +6,14 @@ import ipdb
 
 class SummaryWriter(Database):
     def __init__(self,folder_name,run_name=None):
-        # super().__init__()
-        self.client = MongoClient()
+        super().__init__()
+        # self.client = MongoClient()
 
         if run_name == None:
             run_name = datetime.datetime.now().strftime("%B %d, %Y at %I:%M%p")
 
         self.experiment = self.client[folder_name][run_name]
-        self.check_connection()
-
+        ## This line is critical to having add_experiment_parameter work
         self.experiment.insert({"Name of Text":"Experimental Parameters","Parameters": [{"Time":run_name}]})
         # self.experiment.insert({'id':'id','Test':[1]})
         # self.experiment.update({'id':'id'},{'$push':{'Test':2}})
