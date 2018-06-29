@@ -5,24 +5,25 @@ import ipdb
 
 
 class SummaryWriter(Database):
-    def __init__(self,folder_name,run_name=None):
+    def __init__(self,run_name,folder_name='deep_learning'):
         super().__init__()
-        if run_name == None:
-            run_name = datetime.datetime.now().strftime("%B %d, %Y at %I:%M%p")
+        self.runs = self.client[folder_name][run_name]
 
-        self.experiment = self.client[folder_name][run_name]
-        
+        self.date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.runs.insert_one({"Time":self.date})
 
     def add_scalar(self,variable_name:str, f:int):
-        self.experiment.update_one({variable_name:{"$exists":"true"}}, {'$push' :{variable_name:f}}, upsert=True)
+        # self.experiment.update_one({variable_name:{"$exists":"true"}}, {'$push' :{variable_name:f}}, upsert=True)
+        self.runs.update_one({"Time":self.date},{'$push':{variable_name:f}},upsert= True)
 
     def add_experiment_parameter(self,parameter_name:str, value:int):
-        self.experiment.update_one({"Parameters":{"$exists":"true"}}, {'$push':{'Parameters':{parameter_name:value}}}, upsert=True)
-    def viewRun(self):
+        # self.experiment.update_one({"Parameters":{"$exists":"true"}}, {'$push':{'Parameters':{parameter_name:value}}}, upsert=True)
+        self.runs.update_one({"Time":self.date}, {'$set':{parameter_name:value}})
+    def viewExperiment(self):
         '''
         show all the data logged from the run
         '''
-        for doc in self.experiment.find():
+        for doc in self.experiment.find({"Time":self.date}):
             print(doc)
 
 
@@ -34,10 +35,9 @@ if __name__ == '__main__':
     w.add_experiment_parameter('Neurons',3)
     for i in range(5):
         w.add_scalar("Loss",i**2)
-    w.viewFolder('test')
     w.viewRun()
     ipdb.set_trace()
-    w.removeFolder('test')
+    w.removeCollection('deep_learning','test')
     w.close()
 
 
