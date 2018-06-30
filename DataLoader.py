@@ -3,6 +3,7 @@ from LoggerUtils import *
 import pandas as pd
 from datetime import datetime
 import ipdb
+import itertools
 
 def getTable(run_name,folder_name='deep_learning'):
     '''
@@ -14,8 +15,11 @@ def getTable(run_name,folder_name='deep_learning'):
     
     runs_iterator = runs.find()
     df_list =[]
+    list_of_variable_names_for_each_run=[]
     for run_object in runs_iterator:
         min_array_length = getMinArrayLength(run_object)
+        list_of_variable_names_for_each_run.append(getVariableNames(run_object))
+
         some_dict = {key: arrayLengthEqualizer(value,min_array_length) for key, value in run_object.items() if key != '_id'}
         some_df = pd.DataFrame(some_dict)
         ## This leaves NaNs, so not as optimal
@@ -23,8 +27,15 @@ def getTable(run_name,folder_name='deep_learning'):
         df_list.append(some_df)
     final_df = pd.concat(df_list,ignore_index=False)
     final_df['Time']=final_df['Time'].apply(strToDatetime)
-    return final_df
 
+    return final_df,set(list(itertools.chain(*list_of_variable_names_for_each_run)))
+
+def getVariableNames(dictionary):
+    variable_list=[]
+    for key,value in dictionary.items():
+        if type(value)==list:
+            variable_list.append(key)
+    return variable_list
 ################################################################
 def getMinArrayLength(dictionary):
     min_length_list=[]
@@ -56,7 +67,7 @@ def strToDatetime(string):
 ################################################################
 
 if __name__ == '__main__':
-    df = getTable('lunarlander')
+    df,var_names = getTable('lunarlander')
 
 
 

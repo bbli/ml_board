@@ -8,7 +8,7 @@ from DataLoader import getTable
 # logging.basicConfig(level=logging.DEBUG)
 
 app = dash.Dash(__name__)
-df = getTable('lunarlander')
+df,var_names = getTable('lunarlander')
 # Boostrap CSS.
 app.css.append_css({
     "external_url": "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -30,19 +30,21 @@ app.scripts.append_script({
 })
 ################################################################
 
-num_graphs = len(df['Time'].unique())
+# num_graphs = len(df['Time'].unique())
 
 app.layout = html.Div([
     html.Div(
         [html.H1("Machine Learning Dashboard", className="text-center")]
-    ,className="row"),
-    html.Div(
-            [html.Div(
-                [dcc.Graph(id='a')]
-            ,className="col-md-8")]
-    ,className="row")
+    ,className="row")]+
+    [html.Div(
+        [html.Div(
+            [dcc.Graph(id='a'+str(i))]
+        ,className="col-md-8")]
+    ,className="row") for i in range(len(var_names))]
     # +[html.Div([html.Div(html.Div(dcc.Graph(id=i)),className="col-md-8")])],className="row") for i in range(num_graphs)]
-], className="container-fluid")
+, className="container-fluid")
+
+# def table
  
 if __name__=='__main__':
     app.run_server(debug=True)
