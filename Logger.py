@@ -9,7 +9,7 @@ class SummaryWriter(Database):
         super().__init__()
         self.runs = self.client[folder_name][run_name]
 
-        self.date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
         self.runs.insert_one({"Time":self.date})
 
     def add_scalar(self,variable_name:str, f:int):
