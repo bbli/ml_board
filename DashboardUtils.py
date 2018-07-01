@@ -9,7 +9,7 @@ def createListOfButtonGraph(df,var_names):
         button = html.Div([html.Div(html.Button(var,id=var+'button'),className='col-md-8')],className="row")
         html_div_list.append(button)
 
-        graph = html.Div([html.Div(dcc.Graph(id=var+'plot',figure=getFigure(df,var)),className="col-md-8")],className="row")
+        graph = html.Div([html.Div(dcc.Graph(id=var+'plot',figure=getFigure(df,var)),className="col-md-8")],className="row",id=var+'plotrow')
         html_div_list.append(graph)
     return html_div_list
 def getFigure(df,var):
@@ -29,10 +29,15 @@ def getFigure(df,var):
 def createButtonCallbacks(app,var_names):
     for var in var_names:
         @app.callback(
-            Output(var+'plot', 'figure'),
+            Output(var+'plotrow','style'),
             [Input(var+'button', 'n_clicks')])
-        def update_figure(selected_year):
-            return figure_dictionary
+        def update_figure(n_clicks):
+            if n_clicks!=None:
+                if n_clicks%2==0:
+                    return {'display':'block'}
+                else:
+                    return {'display':'None'}
+            return {'display':'block'}
 
 from inspect import getsource
 def code(function):
