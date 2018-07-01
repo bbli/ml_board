@@ -46,14 +46,17 @@ app.layout = html.Div(
     # +[html.Div([html.Div(html.Div(dcc.Graph(id=i)),className="col-md-8")])],className="row") for i in range(num_graphs)]
 , className="container-fluid")
 
-# createButtonCallbacks(app,var_names)
+createButtonCallbacks(app,var_names)
 
 @app.callback(
         Output('debug','children'),
-        [Input('Lossbutton','value')]
+        [Input('Advantagebutton','n_clicks')]
         )
-def printer(value):
-    return value
+def printer(n_clicks):
+    if n_clicks!=None:
+        return "Debug Value: "+str(n_clicks)
+    else:
+        return "None"
  
 if __name__=='__main__':
     app.run_server(debug=True)

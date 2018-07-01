@@ -30,7 +30,7 @@ def createButtonCallbacks(app,var_names):
     for var in var_names:
         @app.callback(
             Output(var+'plot', 'figure'),
-            [Input(var+'button', 'value')])
+            [Input(var+'button', 'n_clicks')])
         def update_figure(selected_year):
             return figure_dictionary
 
