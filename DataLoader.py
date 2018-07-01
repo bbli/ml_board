@@ -28,7 +28,7 @@ def getTable(run_name,folder_name='deep_learning'):
     final_df = pd.concat(df_list,ignore_index=False)
     final_df['Time']=final_df['Time'].apply(strToDatetime)
 
-    return final_df,set(list(itertools.chain(*list_of_variable_names_for_each_run)))
+    return final_df,sorted(set(list(itertools.chain(*list_of_variable_names_for_each_run))))
 
 def getVariableNames(dictionary):
     variable_list=[]

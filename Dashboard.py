@@ -7,6 +7,7 @@ import ipdb
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
 # import plotly.graph_objs as go
+from DashboardUtils import *
 
 
 app = dash.Dash(__name__)
@@ -34,40 +35,25 @@ app.scripts.append_script({
 # num_graphs = len(df['Time'].unique())
 df,var_names = getTable('lunarlander')
 
-def createListOfButtonGraph(var_names):
-    html_div_list=[]
-    for var in var_names:
-        button = html.Div([html.Div(html.Button(var,id=var+'button'),className='col-md-8')],className="row")
-        html_div_list.append(button)
-
-        graph = html.Div([html.Div(dcc.Graph(id=var+'plot',figure=getFigure(var)),className="col-md-8")],className="row")
-        html_div_list.append(graph)
-    return html_div_list
-
-def getFigure(var):
-    '''
-    Gets the data for all the runs with the input variable name and plots them on one graph
-    '''
-    run_names = df['Time'].unique()
-    plot_for_each_run=[]
-    for run in run_names:
-        ##create dictionary
-        filtered_df=df[df.Time==run]
-        run_dict = {'y':list(filtered_df[var])}
-        plot_for_each_run.append(run_dict)
-    figure_dict= {'data':plot_for_each_run}
-    return figure_dict
-
-
-app.layout = html.Div([
-    html.Div(
+app.layout = html.Div(
+    [html.Div(
         [html.H1("Machine Learning Dashboard", className="text-center")]
     ,className="row")]+
-    createListOfButtonGraph(var_names)
+    [html.Div(
+        [html.H1("Debug Value",id='debug',className="text-center")]
+    ,className="row")]+
+    createListOfButtonGraph(df,var_names)
     # +[html.Div([html.Div(html.Div(dcc.Graph(id=i)),className="col-md-8")])],className="row") for i in range(num_graphs)]
 , className="container-fluid")
 
+# createButtonCallbacks(app,var_names)
 
+@app.callback(
+        Output('debug','children'),
+        [Input('Lossbutton','value')]
+        )
+def printer(value):
+    return value
  
 if __name__=='__main__':
     app.run_server(debug=True)
