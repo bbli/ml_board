@@ -57,9 +57,14 @@ app.layout = html.Div(
             id='datatable'
             )]
     ,className="row")]+
+
     [html.Div(
         [html.P("Debug Value",id='debug',className="text-center")]
     ,className="row")]+
+    [html.Div(
+        [html.P("Debug Value",id='debug2',className="text-center")]
+    ,className="row")]+
+
     createListOfButtonGraph(df,var_names)
     # +[html.Div([html.Div(html.Div(dcc.Graph(id=i)),className="col-md-8")])],className="row") for i in range(num_graphs)]
 , className="container-fluid")
@@ -76,16 +81,42 @@ for var in var_names:
             else:
                 return {'display':'None'}
         return {'display':'inline'}
+    ## Table to Graph callback
+    @app.callback(
+    Output(var+'plot', 'figure'),
+    ##rows can change due to filter
+    [Input('datatable', 'rows'),
+     Input('datatable', 'selected_row_indices')])
+    def update_figure(rows, selected_row_indices):
+        plot_for_each_run=[]
+        if selected_row_indices==[]:
+            selected_rows= rows
+        else:
+            selected_rows = [rows[i] for i in selected_row_indices]
+        for run_dict in selected_rows:
+            run_name=run_dict['Time']
+            ##create dictionary
+            filtered_df=df[df.Time==run_name]
+            run_dict = {'y':list(filtered_df[var])}
+            plot_for_each_run.append(run_dict)
+
+        figure_dict= {'data':plot_for_each_run}
+        return figure_dict
+
 
 @app.callback(
         Output('debug','children'),
-        [Input('Advantagebutton','n_clicks')]
+        [Input('datatable','rows')]
         )
-def printer(n_clicks):
-    if n_clicks!=None:
-        return "Debug Value: "+str(n_clicks)
-    else:
-        return "None"
+def printer(rows):
+    return "Debug Value 1:\n"+str(rows)
+
+@app.callback(
+        Output('debug2','children'),
+        [Input('datatable','selected_row_indices')]
+        )
+def printer(rows):
+    return "Debug Value 2:\n"+str(rows)
  
 if __name__=='__main__':
     app.run_server(port=8000,debug=True)
