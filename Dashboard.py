@@ -57,13 +57,23 @@ app.layout = html.Div(
             )]
     ,className="row")]+
     [html.Div(
-        [html.H1("Debug Value",id='debug',className="text-center")]
+        [html.P("Debug Value",id='debug',className="text-center")]
     ,className="row")]+
     createListOfButtonGraph(df,var_names)
     # +[html.Div([html.Div(html.Div(dcc.Graph(id=i)),className="col-md-8")])],className="row") for i in range(num_graphs)]
 , className="container-fluid")
 
-createButtonCallbacks(app,var_names)
+for var in var_names:
+    @app.callback(
+        Output(var+'plotrow','style'),
+        [Input(var+'button', 'n_clicks')])
+    def update_figure(n_clicks):
+        if n_clicks!=None:
+            if n_clicks%2==0:
+                return {'display':'inline'}
+            else:
+                return {'display':'None'}
+        return {'display':'inline'}
 
 @app.callback(
         Output('debug','children'),

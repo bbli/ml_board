@@ -26,18 +26,6 @@ def getFigure(df,var):
     figure_dict= {'data':plot_for_each_run}
     return figure_dict
 
-def createButtonCallbacks(app,var_names):
-    for var in var_names:
-        @app.callback(
-            Output(var+'plotrow','style'),
-            [Input(var+'button', 'n_clicks')])
-        def update_figure(n_clicks):
-            if n_clicks!=None:
-                if n_clicks%2==0:
-                    return {'display':'inline'}
-                else:
-                    return {'display':'None'}
-            return {'display':'inline'}
 def selectFirst(df_slice):
     return df_slice.iloc[0]
 
