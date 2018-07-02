@@ -1,6 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table_experiments as dt
 from dash.dependencies import Input, Output
 from DataLoader import getTable
 import ipdb
@@ -34,10 +35,26 @@ app.scripts.append_script({
 
 # num_graphs = len(df['Time'].unique())
 df,var_names = getTable('lunarlander')
+temp_df = df.drop(var_names,axis=1)
+table_df = temp_df.groupby('Time').apply(selectFirst)
+# ipdb.set_trace()
 
 app.layout = html.Div(
     [html.Div(
         [html.H1("Machine Learning Dashboard", className="text-center")]
+    ,className="row")]+
+    [html.Div(
+        [dt.DataTable(
+            rows=table_df.to_dict('records'),
+            # optional - sets the order of columns
+            columns=sorted(table_df.columns),
+
+            row_selectable=True,
+            filterable=True,
+            sortable=True,
+            selected_row_indices=[],
+            id='datatable-gapminder'
+            )]
     ,className="row")]+
     [html.Div(
         [html.H1("Debug Value",id='debug',className="text-center")]
@@ -59,6 +76,6 @@ def printer(n_clicks):
         return "None"
  
 if __name__=='__main__':
-    app.run_server(debug=True)
+    app.run_server(port=8000,debug=True)
     # div_list=createListOfButtonGraph(var_names)
     # getFigure('Loss')

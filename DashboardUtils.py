@@ -34,10 +34,12 @@ def createButtonCallbacks(app,var_names):
         def update_figure(n_clicks):
             if n_clicks!=None:
                 if n_clicks%2==0:
-                    return {'display':'block'}
+                    return {'display':'inline'}
                 else:
                     return {'display':'None'}
-            return {'display':'block'}
+            return {'display':'inline'}
+def selectFirst(df_slice):
+    return df_slice.iloc[0]
 
 from inspect import getsource
 def code(function):
