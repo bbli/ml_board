@@ -2,13 +2,14 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from DataLoader import getTable
 import ipdb
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
 # import plotly.graph_objs as go
 from DashboardUtils import *
+import sys
 
 
 app = dash.Dash(__name__)
@@ -34,14 +35,27 @@ app.scripts.append_script({
 ################################################################
 
 # num_graphs = len(df['Time'].unique())
-df,var_names = getTable('deep_learning','lunarlander')
-temp_df = df.drop(var_names,axis=1)
-table_df = temp_df.groupby('Time').apply(selectFirst)
+database_name='software_testing'
+folder_name='lunarlander'
+df,var_names = getTable(database_name,folder_name)
+table_df = df.drop(var_names,axis=1)
+table_df = table_df.groupby('Time').apply(selectFirst)
 # ipdb.set_trace()
 
 app.layout = html.Div(
     [html.Div(
         [html.H1("Machine Learning Dashboard", className="text-center")]
+    ,className="row")]+
+    [html.Div(
+        [dcc.Checklist(
+            id='autoupdateToggle',
+            options=[{'label':'AutoUpdate','values':'On'}],
+            values=[]),
+         dcc.Interval(
+             id='interval',
+             interval=1*10_000,
+             n_intervals=0
+         )]
     ,className="row")]+
     [html.Div(
         [dt.DataTable(
@@ -81,32 +95,57 @@ for var in var_names:
             else:
                 return {'display':'None'}
         return {'display':'inline'}
-    ## Table to Graph callback
+    # Table to Graph callback
     @app.callback(
     Output(var+'plot', 'figure'),
     ##rows can change due to filter
-    [Input('datatable', 'rows'),
-     Input('datatable', 'selected_row_indices')])
-    def update_figure(rows, selected_row_indices):
-        plot_for_each_run=[]
-        if selected_row_indices==[]:
-            selected_rows= rows
+    [Input('interval','n_intervals'),
+     Input('datatable', 'rows'),
+     Input('datatable', 'selected_row_indices')],
+    [State('autoupdateToggle','values'),
+     State(var+'plot','figure')]
+    )
+    def update_figure(n_intervals,rows, selected_row_indices,values,figure):
+        if None in values:
+            print("getting new df",file=sys.stdout)
+            global df
+            global var_names
+            df,var_names = getTable(database_name,folder_name)
+            plot_for_each_run=[]
+            if selected_row_indices==[]:
+                selected_rows= rows
+            else:
+                selected_rows = [rows[i] for i in selected_row_indices]
+            ## creating the data dictionary for each run
+            for run_dict in selected_rows:
+                run_name=run_dict['Time']
+                filtered_df=df[df.Time==run_name]
+                run_dict = {'y':list(filtered_df[var])}
+                plot_for_each_run.append(run_dict)
+
+            figure_dict= {'data':plot_for_each_run}
+            return figure_dict
         else:
-            selected_rows = [rows[i] for i in selected_row_indices]
-        for run_dict in selected_rows:
-            run_name=run_dict['Time']
-            ##create dictionary
-            filtered_df=df[df.Time==run_name]
-            run_dict = {'y':list(filtered_df[var])}
-            plot_for_each_run.append(run_dict)
-
-        figure_dict= {'data':plot_for_each_run}
-        return figure_dict
-
+            return figure
 
 @app.callback(
+        Output("datatable","rows"),
+        [Input('interval','n_intervals')],
+        [State("autoupdateToggle","values"),
+         State("datatable","rows")]
+        )
+def update_table(n_intervals,values,rows):
+    if None in values:
+        global table_df
+        table_df = df.drop(var_names,axis=1)
+        table_df = table_df.groupby('Time').apply(selectFirst)
+        return table_df.to_dict('records')
+    else:
+        return rows
+## Debug
+@app.callback(
         Output('debug','children'),
-        [Input('datatable','rows')]
+        [Input('autoupdateToggle','values')]
         )
 def printer(rows):
     return "Debug Value 1:\n"+str(rows)
