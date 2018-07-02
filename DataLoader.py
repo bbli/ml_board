@@ -5,7 +5,7 @@ from datetime import datetime
 import ipdb
 import itertools
 
-def getTable(run_name,folder_name='deep_learning'):
+def getTable(folder_name,run_name):
     '''
     returns a dataframe with the experiment parameters for each run in the folder
     '''
@@ -63,11 +63,11 @@ def strToDatetime(string):
     if type(string)==float:
         return string
     else:
-        return datetime.strptime(string,'%Y-%m-%d-%H:%M:%S')
+        return datetime.strptime(string,'%Y-%m-%d %H:%M:%S')
 ################################################################
 
 if __name__ == '__main__':
-    df,var_names = getTable('lunarlander')
+    df,var_names = getTable('deep_learning','lunarlander')
 
 
 

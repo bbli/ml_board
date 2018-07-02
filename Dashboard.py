@@ -34,7 +34,7 @@ app.scripts.append_script({
 ################################################################
 
 # num_graphs = len(df['Time'].unique())
-df,var_names = getTable('lunarlander')
+df,var_names = getTable('deep_learning','lunarlander')
 temp_df = df.drop(var_names,axis=1)
 table_df = temp_df.groupby('Time').apply(selectFirst)
 # ipdb.set_trace()
@@ -52,8 +52,9 @@ app.layout = html.Div(
             row_selectable=True,
             filterable=True,
             sortable=True,
+            editable=False,
             selected_row_indices=[],
-            id='datatable-gapminder'
+            id='datatable'
             )]
     ,className="row")]+
     [html.Div(
@@ -64,6 +65,7 @@ app.layout = html.Div(
 , className="container-fluid")
 
 for var in var_names:
+    ## Button Toggle
     @app.callback(
         Output(var+'plotrow','style'),
         [Input(var+'button', 'n_clicks')])
