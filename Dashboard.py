@@ -83,51 +83,48 @@ app.layout = html.Div(
     # +[html.Div([html.Div(html.Div(dcc.Graph(id=i)),className="col-md-8")])],className="row") for i in range(num_graphs)]
 , className="container-fluid")
 
+################ **Assigning Callbacks** ##################
 for var in var_names:
-    ## Button Toggle
+    ## Display of Graphs
     @app.callback(
         Output(var+'plotrow','style'),
         [Input(var+'button', 'n_clicks')])
-    def update_figure(n_clicks):
+    def show_figure(n_clicks):
         if n_clicks!=None:
             if n_clicks%2==0:
                 return {'display':'inline'}
             else:
                 return {'display':'None'}
         return {'display':'inline'}
-    # Table to Graph callback
+
+    ## Graph data
     @app.callback(
     Output(var+'plot', 'figure'),
-    ##rows can change due to filter
+    ## changes every n seconds
     [Input('interval','n_intervals'),
+    ## can change due to update in df or filter
      Input('datatable', 'rows'),
+    ## can change based on user interaction
      Input('datatable', 'selected_row_indices')],
     [State('autoupdateToggle','values'),
      State(var+'plot','figure')]
     )
-    def update_figure(n_intervals,rows, selected_row_indices,values,figure):
-        if None in values:
-            print("getting new df",file=sys.stdout)
-            global df
-            global var_names
-            df,var_names = getTable(database_name,folder_name)
-            plot_for_each_run=[]
-            if selected_row_indices==[]:
-                selected_rows= rows
-            else:
-                selected_rows = [rows[i] for i in selected_row_indices]
-            ## creating the data dictionary for each run
-            for run_dict in selected_rows:
-                run_name=run_dict['Time']
-                filtered_df=df[df.Time==run_name]
-                run_dict = {'y':list(filtered_df[var])}
-                plot_for_each_run.append(run_dict)
+    def update_figure(n_intervals, rows, selected_row_indices, values, figure):
+        updateDataFrame(values)
+       
+        times_of_each_run=getSelectedRunsFromDatatable(rows,selected_row_indices)
+        ################ **Updating Graphs** ##################
+        plot_for_each_run=[]
+        ## creating the data dictionary for each run
+        for time in times_of_each_run:
+            filtered_df=df[df.Time==time]
+            run_dict = {'y':list(filtered_df[var])}
+            plot_for_each_run.append(run_dict)
 
-            figure_dict= {'data':plot_for_each_run}
-            return figure_dict
-        else:
-            return figure
+        figure_dict= {'data':plot_for_each_run}
+        return figure_dict
 
+## Table data
 @app.callback(
         Output("datatable","rows"),
         [Input('interval','n_intervals')],
@@ -142,10 +139,11 @@ def update_table(n_intervals,values,rows):
         return table_df.to_dict('records')
     else:
         return rows
+
 ## Debug
 @app.callback(
         Output('debug','children'),
-        [Input('autoupdateToggle','values')]
+        [Input(var_names[0]+'plot','hoverData')]
         )
 def printer(rows):
     return "Debug Value 1:\n"+str(rows)

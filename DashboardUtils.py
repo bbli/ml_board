@@ -27,6 +27,21 @@ def getFigure(df,var):
     figure_dict= {'data':plot_for_each_run}
     return figure_dict
 
+def updateDataFrame(values):
+    ## None will be in values if autoupdateToggle is on
+    if None in values:
+        # print("getting new df",file=sys.stdout)
+        global df
+        global var_names
+        df,var_names = getTable(database_name,folder_name)
+
+def getSelectedRunsFromDatatable(rows,selected_row_indices):
+    if selected_row_indices==[]:
+        selected_runs= rows
+    else:
+        selected_runs = [rows[i] for i in selected_row_indices]
+    return [run_dict['Time'] for run_dict in selected_runs]
+
 def selectFirst(df_slice):
     return df_slice.iloc[0]
 
