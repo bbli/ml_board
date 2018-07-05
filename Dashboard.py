@@ -10,6 +10,8 @@ import ipdb
 # import plotly.graph_objs as go
 from DashboardUtils import *
 import sys
+import plotly.graph_objs as go
+
 
 
 app = dash.Dash(__name__)
@@ -47,21 +49,34 @@ app.layout = html.Div(
         [html.H1("Machine Learning Dashboard", className="text-center")]
     ,className="row")]+
     [html.Div(
-        [dcc.Checklist(
-            id='autoupdateToggle',
-            options=[{'label':'AutoUpdate','values':'On'}],
-            values=[]),
-         dcc.Interval(
-             id='interval',
-             interval=1*10_000,
-             n_intervals=0
-         )]
-    ,className="row")]+
+        [html.Div(
+            dcc.Checklist(
+                id='autoupdateToggle',
+                options=[{'label':'AutoUpdate','values':'On'}],
+                values=[])
+        ,className ='col-md-2'),
+        html.Div(
+             dcc.Interval(
+                 id='interval',
+                 interval=1*10_000,
+                 n_intervals=0)
+        ,className="col-md-2"),
+         html.Div(
+             dcc.RadioItems(
+                 id='legend',
+                 options=[{'label':param,'value':param} for param in list(table_df.columns)],
+                 # options=[{'label':"test","value":"test"}]
+                 value=list(table_df.columns)[0],
+                 labelStyle={'display': 'inline-block'}
+                 )
+         ,className='col-md-8')
+         ]
+     ,className='row')]+
     [html.Div(
         [dt.DataTable(
             rows=table_df.to_dict('records'),
             # optional - sets the order of columns
-            columns=sorted(table_df.columns),
+            columns=list(table_df.columns),
 
             row_selectable=True,
             filterable=True,
@@ -95,6 +110,7 @@ for var in var_names:
                 return {'display':'inline'}
             else:
                 return {'display':'None'}
+        ##inital display
         return {'display':'inline'}
 
     ## Graph data
@@ -112,7 +128,7 @@ for var in var_names:
     def update_figure(n_intervals, rows, selected_row_indices, values, figure):
         updateDataFrame(values)
        
-        times_of_each_run=getSelectedRunsFromDatatable(rows,selected_row_indices)
+        times_of_each_run,keys=getSelectedRunsFromDatatable(rows,selected_row_indices)
         ################ **Updating Graphs** ##################
         plot_for_each_run=[]
         ## creating the data dictionary for each run

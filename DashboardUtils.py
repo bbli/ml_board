@@ -6,10 +6,10 @@ from dash.dependencies import Input, Output
 def createListOfButtonGraph(df,var_names):
     html_div_list=[]
     for var in var_names:
-        button = html.Div([html.Div(html.Button(var,id=var+'button'),className='col-md-8')],className="row")
+        button = html.Div([html.Div(html.Button(var,id=var+'button'),className='col-md-12')],className="row")
         html_div_list.append(button)
 
-        graph = html.Div([html.Div(dcc.Graph(id=var+'plot',figure=getFigure(df,var)),className="col-md-8")],className="row",id=var+'plotrow')
+        graph = html.Div([html.Div(dcc.Graph(id=var+'plot',figure=getFigure(df,var)),className="col-md-12")],className="row",id=var+'plotrow')
         html_div_list.append(graph)
     return html_div_list
 
@@ -40,7 +40,7 @@ def getSelectedRunsFromDatatable(rows,selected_row_indices):
         selected_runs= rows
     else:
         selected_runs = [rows[i] for i in selected_row_indices]
-    return [run_dict['Time'] for run_dict in selected_runs]
+    return [run_dict['Time'] for run_dict in selected_runs], selected_runs[0].keys()
 
 def selectFirst(df_slice):
     return df_slice.iloc[0]
