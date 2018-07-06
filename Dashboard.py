@@ -118,15 +118,16 @@ for var in var_names:
     Output(var+'plot', 'figure'),
     ## changes every n seconds
     [Input('interval','n_intervals'),
-    ## can change due to update in df or filter
+    ## can change due to filter
      Input('datatable', 'rows'),
     ## can change based on user interaction
      Input('datatable', 'selected_row_indices')],
     [State('autoupdateToggle','values'),
      State(var+'plot','figure')]
     )
-    def update_figure(n_intervals, rows, selected_row_indices, values, figure):
-        updateDataFrame(values)
+    def update_figure(n_intervals, rows, selected_row_indices, auto_update_values, figure):
+        ## conditional
+        updateDataFrame(auto_update_values,database_name,folder_name)
        
         times_of_each_run,keys=getSelectedRunsFromDatatable(rows,selected_row_indices)
         ################ **Updating Graphs** ##################

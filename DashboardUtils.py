@@ -2,6 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+from DataLoader import getTable
 
 def createListOfButtonGraph(df,var_names):
     html_div_list=[]
@@ -27,7 +28,7 @@ def getFigure(df,var):
     figure_dict= {'data':plot_for_each_run}
     return figure_dict
 
-def updateDataFrame(values):
+def updateDataFrame(values,database_name,folder_name):
     ## None will be in values if autoupdateToggle is on
     if None in values:
         # print("getting new df",file=sys.stdout)
