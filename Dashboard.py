@@ -60,7 +60,13 @@ app.layout = html.Div(
                  id='interval',
                  interval=1*10_000,
                  n_intervals=0)
-        ,className="col-md-2"),
+        ,className="col-md-1"),
+        html.Div(
+             html.Div(
+                 "inital value",
+                 style={'display':"none"},
+                 id='buffer')
+        ,className="col-md-1"),
          html.Div(
              dcc.RadioItems(
                  id='legend',
@@ -140,6 +146,18 @@ for var in var_names:
 
         figure_dict= {'data':plot_for_each_run}
         return figure_dict
+## Time toggle buffer
+@app.callback(
+        Output("buffer","children"),
+        [Input("interval","n_intervals")],
+        [State("autoupdateToggle","values"),
+         State("buffer","children")]
+        )
+def add_more_datapoints(n_intervals,values,children):
+    if None in values:
+        return "true"
+    else:
+        return "false"
 
 ## Table data
 @app.callback(
@@ -160,17 +178,18 @@ def update_table(n_intervals,values,rows):
 ## Debug
 @app.callback(
         Output('debug','children'),
-        [Input(var_names[0]+'plot','hoverData')]
+        [Input("buffer",'children')]
         )
 def printer(rows):
-    return "Debug Value 1:\n"+str(rows)
+    return "Debug Value 1:"+str(rows)
 
 @app.callback(
         Output('debug2','children'),
-        [Input('datatable','selected_row_indices')]
+        [Input("debug",'children')],
+        [State("debug2","children")]
         )
-def printer(rows):
-    return "Debug Value 2:\n"+str(rows)
+def printer(rows,children):
+    return str(children)+str(rows[14:])
  
 if __name__=='__main__':
     app.run_server(port=8000,debug=True)
