@@ -123,7 +123,7 @@ for var in var_names:
     @app.callback(
     Output(var+'plot', 'figure'),
     ## changes every n seconds
-    [Input('interval','n_intervals'),
+    [Input('buffer','children'),
     ## can change due to filter
      Input('datatable', 'rows'),
     ## can change based on user interaction
@@ -131,9 +131,11 @@ for var in var_names:
     [State('autoupdateToggle','values'),
      State(var+'plot','figure')]
     )
-    def update_figure(n_intervals, rows, selected_row_indices, auto_update_values, figure):
-        ## conditional
-        updateDataFrame(auto_update_values,database_name,folder_name)
+    def update_figure(children, rows, selected_row_indices, auto_update_values, figure):
+        ################ **Updating DataFrame** ##################
+        global df
+        global var_names
+        df,var_names = getTable(database_name,folder_name)
        
         times_of_each_run,keys=getSelectedRunsFromDatatable(rows,selected_row_indices)
         ################ **Updating Graphs** ##################
@@ -162,11 +164,11 @@ def add_more_datapoints(n_intervals,values,children):
 ## Table data
 @app.callback(
         Output("datatable","rows"),
-        [Input('interval','n_intervals')],
+        [Input('buffer','children')],
         [State("autoupdateToggle","values"),
          State("datatable","rows")]
         )
-def update_table(n_intervals,values,rows):
+def update_table(children,values,rows):
     if None in values:
         global table_df
         table_df = df.drop(var_names,axis=1)
