@@ -157,7 +157,7 @@ def add_more_datapoints(n_intervals,values,children):
     if None in values:
         return "true"
     else:
-        return "false"
+        raise Exception
 
 ## Table data
 @app.callback(
