@@ -66,16 +66,16 @@ app.layout = html.Div(
                  "inital value",
                  style={'display':"none"},
                  id='buffer')
-        ,className="col-md-1"),
+        ,className="col-md-5"),
          html.Div(
-             dcc.RadioItems(
+             dcc.Dropdown(
                  id='legend',
                  options=[{'label':param,'value':param} for param in list(table_df.columns)],
                  # options=[{'label':"test","value":"test"}]
                  value=list(table_df.columns)[0],
-                 labelStyle={'display': 'inline-block'}
+                 # labelStyle={'display': 'inline-block'}
                  )
-         ,className='col-md-8')
+         ,className='col-md-4')
          ]
      ,className='row')]+
     [html.Div(
@@ -95,10 +95,10 @@ app.layout = html.Div(
 
     [html.Div(
         [html.P("Debug Value",id='debug',className="text-center")]
-    ,className="row")]+
+        ,className="row",style={'display':'none'})]+
     [html.Div(
         [html.P("Debug Value",id='debug2',className="text-center")]
-    ,className="row")]+
+        ,className="row",style={'display':'none'})]+
 
     createListOfButtonGraph(df,var_names)
     # +[html.Div([html.Div(html.Div(dcc.Graph(id=i)),className="col-md-8")])],className="row") for i in range(num_graphs)]
