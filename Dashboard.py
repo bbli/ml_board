@@ -162,10 +162,9 @@ for var in var_names:
 @app.callback(
         Output("buffer","children"),
         [Input("interval","n_intervals")],
-        [State("autoupdateToggle","values"),
-         State("buffer","children")]
+        [State("autoupdateToggle","values")]
         )
-def add_more_datapoints(n_intervals,values,children):
+def add_more_datapoints(n_intervals,values):
     if None in values:
         return "true"
     else:
@@ -175,17 +174,13 @@ def add_more_datapoints(n_intervals,values,children):
 @app.callback(
         Output("datatable","rows"),
         [Input('buffer','children')],
-        [State("autoupdateToggle","values"),
-         State("datatable","rows")]
+        [State("datatable","rows")]
         )
-def update_table(children,values,rows):
-    if None in values:
-        global table_df
-        table_df = df.drop(var_names,axis=1)
-        table_df = table_df.groupby('Time').apply(selectFirst)
-        return table_df.to_dict('records')
-    else:
-        return rows
+def update_table(children,rows):
+    global table_df
+    table_df = df.drop(var_names,axis=1)
+    table_df = table_df.groupby('Time').apply(selectFirst)
+    return table_df.to_dict('records')
 
 ## Debug
 @app.callback(
