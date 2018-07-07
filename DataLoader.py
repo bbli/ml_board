@@ -63,7 +63,7 @@ def strToDatetime(string):
     if type(string)==float:
         return string
     else:
-        return datetime.strptime(string,'%Y-%m-%d %H:%M:%S')
+        return datetime.strptime(string,'%Y-%m-%d-%H:%M:%S')
 ################################################################
 
 if __name__ == '__main__':
