@@ -37,7 +37,7 @@ if __name__ == '__main__':
         w.add_scalar("Loss",i**2)
     w.viewRun()
     ipdb.set_trace()
-    w.removeCollection('deep_learning','test')
+    w.removeCollection('test_db','test_collection')
     w.close()
 
 

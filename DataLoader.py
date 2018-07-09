@@ -67,7 +67,7 @@ def strToDatetime(string):
 ################################################################
 
 if __name__ == '__main__':
-    df,var_names = getTable('deep_learning','lunarlander')
+    df,var_names = getTable('software_testing','lunarlander')
 
 
 
