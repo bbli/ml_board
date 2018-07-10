@@ -5,66 +5,49 @@ from datetime import datetime
 import ipdb
 import itertools
 
-def getTable(folder_name,run_name):
+def getTable(database_name,folder_name):
     '''
     returns a dataframe with the experiment parameters for each run in the folder
     '''
     mongo = Database()
-    runs = mongo.client[folder_name][run_name]
-    
-    
+    runs = mongo.client[database_name][folder_name]
+    ## all the runs in the folder
     runs_iterator = runs.find()
-    df_list =[]
-    list_of_variable_names_for_each_run=[]
+
+    table_rows =[]
+    dict_of_plot_dicts = {}
+    dict_of_images={}
+    dict_of_histograms={}
+    list_of_experimental_parameters_for_each_run=[]
     for run_object in runs_iterator:
-        min_array_length = getMinArrayLength(run_object)
-        list_of_variable_names_for_each_run.append(getVariableNames(run_object))
+        ## Datatable and RadioItems Components needs all experiment parameters from each run in a list
+        ## No need to use try-except block here because Logger will always create this key
+        Experimental_Parameters = run_object['Experimental Parameters']
+        table_rows.append(Experimental_Parameters)
+        list_of_experimental_parameters_for_each_run.append(Experimental_Parameters.keys())
 
-        some_dict = {key: arrayLengthEqualizer(value,min_array_length) for key, value in run_object.items() if key != '_id'}
-        some_df = pd.DataFrame(some_dict)
-        ## This leaves NaNs, so not as optimal
-        # some_df = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in some_dict.items() ]))
-        df_list.append(some_df)
-    final_df = pd.concat(df_list,ignore_index=False)
-    final_df['Time']=final_df['Time'].apply(strToDatetime)
+        time = Experimental_Parameters['Time']
+        try:
+            ## Graph Components need to index into a Time and then the variable
+            Plots=run_object['Plots']
+            dict_of_plot_dicts[time]=Plots
+        except KeyError:
+            pass
+        try:
+            Images = run_object['Images']
+            dict_of_images[time]=Images
+        except KeyError:
+            pass
+        try:
+            Histograms = run_object['Histograms']
+            dict_of_images[time]=Histograms
+        except KeyError:
+            pass
 
-    return final_df,sorted(set(list(itertools.chain(*list_of_variable_names_for_each_run))))
+        ipdb.set_trace()
+    legend_values = sorted(set(list(itertools.chain(*list_of_experimental_parameters_for_each_run))))
+    return table_rows,dict_of_plot_dicts,dict_of_images,dict_of_histograms, legend_values
 
-def getVariableNames(dictionary):
-    variable_list=[]
-    for key,value in dictionary.items():
-        if type(value)==list:
-            variable_list.append(key)
-    return variable_list
-################################################################
-def getMinArrayLength(dictionary):
-    min_length_list=[]
-    for key,value in dictionary.items():
-        if type(value)==list:
-            min_length_list.append(len(value))
-    return min(min_length_list)
-################################################################
-def arrayLengthEqualizer(value,min_length):
-    if type(value)==list:
-        return restrictLength(value,min_length)
-    else:
-        return value
-#########################
-def restrictLength(a_list,min_length):
-    a_length = len(a_list)
-    if a_length==min_length:
-        return a_list
-    else:
-        diff=min_length-a_length
-        return a_list[:diff]
-#########################
-################################################################
-def strToDatetime(string):
-    if type(string)==float:
-        return string
-    else:
-        return datetime.strptime(string,'%Y-%m-%d-%H:%M:%S')
-################################################################
 
 if __name__ == '__main__':
     df,var_names = getTable('software_testing','lunarlander')

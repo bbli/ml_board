@@ -11,6 +11,7 @@ class SummaryWriter(Database):
 
         self.date = datetime.datetime.today().strftime("%Y-%m-%d-%H:%M:%S")
         self.runs.insert_one( {"Experimental Parameters":{"Time":self.date}})
+        # self.runs.update_one({"Experimental Parameters.Time":self.date},{'$set':{"Time":self.date}})
 
     def add_scalar(self,variable_name:str, f:int):
         # self.experiment.update_one({variable_name:{"$exists":"true"}}, {'$push' :{variable_name:f}}, upsert=True)
