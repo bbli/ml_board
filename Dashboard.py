@@ -42,7 +42,6 @@ folder_name='lunarlander'
 g_dict_of_param_dicts,g_dict_of_plot_dicts,g_dict_of_images,g_dict_of_histograms = getRunDicts(database_name,folder_name)
 g_plot_names = getPlotNames(g_dict_of_plot_dicts)
 g_legend_names = getLegendNames(g_dict_of_param_dicts)
-# ipdb.set_trace()
 
 app.layout = html.Div(
     [html.Div(
@@ -71,7 +70,7 @@ app.layout = html.Div(
              dcc.Dropdown(
                  id='legend',
                  options=[{'label':param,'value':param} for param in g_legend_names],
-                 # options=[{'label':"test","value":"test"}]
+                 # options=[{'label':"test","value":"test"}],
                  value=g_legend_names[0],
                  # labelStyle={'display': 'inline-block'}
                  )

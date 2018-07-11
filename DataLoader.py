@@ -3,7 +3,6 @@ from LoggerUtils import *
 import pandas as pd
 from datetime import datetime
 import ipdb
-import itertools
 
 def getRunDicts(database_name,folder_name):
     '''
@@ -23,7 +22,7 @@ def getRunDicts(database_name,folder_name):
         ## No need to use try-except block here because Logger will always create this key
         Experimental_Parameters = run_object['Experimental Parameters']
         time = Experimental_Parameters['Time']
-        dict_of_plot_dicts[time]=Experimental_Parameters
+        dict_of_param_dicts[time]=Experimental_Parameters
 
         try:
             ## Graph Components need to index into a Time and then the variable
