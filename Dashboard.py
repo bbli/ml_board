@@ -79,7 +79,7 @@ app.layout = html.Div(
      ,className='row')]+
     [html.Div(
         [dt.DataTable(
-            rows= g_dict_of_param_dicts,
+            rows= [value for key,value in g_dict_of_param_dicts.items()],
             # optional - sets the order of columns
             columns= g_legend_names,
 
@@ -100,12 +100,11 @@ app.layout = html.Div(
         ,className="row",style={'display':'none'})]+
 
     createListOfButtonGraph(g_dict_of_plot_dicts,g_plot_names)
-    # +[html.Div([html.Div(html.Div(dcc.Graph(id=i)),className="col-md-8")])],className="row") for i in range(num_graphs)]
 , className="container-fluid")
 
 ################ **Assigning Callbacks** ##################
 for plot_name in g_plot_names:
-    ## Display of Graphs
+    # Display of Graphs
     @app.callback(
         Output(plot_name+'plotrow','style'),
         [Input(plot_name+'button', 'n_clicks')])
@@ -161,7 +160,7 @@ for plot_name in g_plot_names:
         figure_dict= {'data':plot_for_each_run}
         return figure_dict
 
-## Time toggle buffer
+# Time toggle buffer
 @app.callback(
         Output("buffer","children"),
         [Input("interval","n_intervals")],
