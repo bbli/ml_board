@@ -3,7 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
 from dash.dependencies import Input, Output, State
-from DataLoader import getTable
+from DataLoader import getRunDicts
 import ipdb
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
@@ -39,9 +39,7 @@ app.scripts.append_script({
 # num_graphs = len(df['Time'].unique())
 database_name='software_testing'
 folder_name='lunarlander'
-df,var_names = getTable(database_name,folder_name)
-table_df = df.drop(var_names,axis=1)
-table_df = table_df.groupby('Time').apply(selectFirst)
+dict_of_param_dicts,dict_of_plot_dicts,dict_of_images,dict_of_histograms,legend_values = getRunDicts(database_name,folder_name)
 # ipdb.set_trace()
 
 app.layout = html.Div(
@@ -70,9 +68,9 @@ app.layout = html.Div(
          html.Div(
              dcc.Dropdown(
                  id='legend',
-                 options=[{'label':param,'value':param} for param in list(table_df.columns)],
+                 options=[{'label':param,'value':param} for param in legend_values],
                  # options=[{'label':"test","value":"test"}]
-                 value=list(table_df.columns)[0],
+                 value=legend_values[0],
                  # labelStyle={'display': 'inline-block'}
                  )
          ,className='col-md-4')
@@ -80,9 +78,9 @@ app.layout = html.Div(
      ,className='row')]+
     [html.Div(
         [dt.DataTable(
-            rows=table_df.to_dict('records'),
+            rows= dict_of_param_dicts,
             # optional - sets the order of columns
-            columns=list(table_df.columns),
+            columns= legend_values,
 
             row_selectable=True,
             filterable=True,
@@ -132,11 +130,14 @@ for var in var_names:
      Input('datatable', 'selected_row_indices')],
      [State(var+'plot','figure')]
     )
-    def update_figure(children, legend_value, rows, selected_row_indices, figure):
+    def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices, figure):
         ################ **Updating DataFrame** ##################
-        global df
-        global var_names
-        df,var_names = getTable(database_name,folder_name)
+        global dict_of_param_dicts
+        global dict_of_histograms
+        global dict_of_images
+        global dict_of_plot_dicts
+        global legend_values
+        dict_of_param_dicts, dict_of_histograms, dict_of_images, dict_of_plot_dicts, legend_values = getRunDicts(database_name,folder_name)
        
         ################ **Interacting with DataTable to get Selected Runs** ##################
         times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
@@ -144,13 +145,14 @@ for var in var_names:
         plot_for_each_run=[]
         ## creating the data dictionary for each run
         for time in times_of_each_run:
-            one_run_df=df[df.Time==time]
+            one_run_plots = dict_of_plot_dicts[time]
+            one_run_params = dict_of_param_dicts[time]
             # run_dict = {'y':list(filtered_df[var])}
             scatter_obj = go.Scatter(
-                    y = list(one_run_df[var]),
+                    y = list(one_run_plots[var]),
                     mode = 'lines',
-                    name = legend_value+":"+str(one_run_df[legend_value][0]),
-                    text = legend_value+":"+str(one_run_df[legend_value][0]),
+                    name = legend_value+":"+str(one_run_params[legend_value]),
+                    text = legend_value+":"+str(one_run_params[legend_value]),
                     hoverinfo='text'
                     )
             plot_for_each_run.append(scatter_obj)
@@ -174,13 +176,17 @@ def add_more_datapoints(n_intervals,values):
 @app.callback(
         Output("datatable","rows"),
         [Input('buffer','children')],
-        [State("datatable","rows")]
         )
-def update_table(children,rows):
-    global table_df
-    table_df = df.drop(var_names,axis=1)
-    table_df = table_df.groupby('Time').apply(selectFirst)
-    return table_df.to_dict('records')
+def update_table(children):
+    return dict_of_param_dicts
+## Table columns
+@app.callback(
+        Output("datatable","columns"),
+        [Input('buffer','children')],
+        )
+def update_table_columns(children):
+    return legend_values
+
 
 ## Debug
 @app.callback(
