@@ -43,6 +43,7 @@ g_plot_names = getPlotNames(g_dict_of_plot_dicts)
 g_legend_names = getLegendNames(g_dict_of_param_dicts)
 g_inital_legend_name = g_legend_names[0]
 
+g_tab_names = ['Plots','Images','Histograms']
 ################ **Layout Helper Functions** ##################
 def createListOfButtonGraph(plot_names, legend_value):
     html_div_list=[]
@@ -52,7 +53,7 @@ def createListOfButtonGraph(plot_names, legend_value):
 
         graph = html.Div([html.Div(dcc.Graph(id=plot+'plot',figure=getInitialFigure(plot,legend_value)),className="col-md-12")],className="row",id=plot+'plotrow')
         html_div_list.append(graph)
-    return html_div_list
+    return html.Div(html_div_list,id=g_tab_names[0])
 
 def getInitialFigure(plot_name,legend_value):
     plot_for_each_run=[]
@@ -123,12 +124,20 @@ app.layout = html.Div(
 
     [html.Div(
         [html.P("Debug Value",id='debug',className="text-center")]
-        ,className="row",style={'display':'none'})]+
+    ,className="row",)]+#style={'display':'none'})]+
     [html.Div(
         [html.P("Debug Value",id='debug2',className="text-center")]
-        ,className="row",style={'display':'none'})]+
-
-    createListOfButtonGraph(g_plot_names,g_inital_legend_name)
+    ,className="row",style={'display':'none'})]+
+    [html.Div(
+        dcc.Tabs(
+            tabs=[{'label': '{}'.format(name), 'value': name} for name in g_tab_names],
+            value=g_tab_names[0],
+            id='tabs'
+        )
+    ,className="row")]
+    +[createListOfButtonGraph(g_plot_names,g_inital_legend_name)]
+    # +createListOfImages
+    # +createListOfHistograms
 , className="container-fluid")
 
 
