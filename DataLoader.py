@@ -45,7 +45,7 @@ def getRunDicts(database_name,folder_name):
 
 
 if __name__ == '__main__':
-    dict_of_plot_dicts,dict_of_param_dicts,dict_of_histograms,dict_of_images = getRunDicts('software_testing','lunarlander')
+    dict_of_plot_dicts,dict_of_param_dicts,dict_of_images, dict_of_histograms = getRunDicts('software_testing','lunarlander')
     plot_names = getPlotNames(dict_of_plot_dicts)
     legend_names = getLegendNames(dict_of_param_dicts)
 

@@ -137,7 +137,7 @@ for plot_name in g_plot_names:
         global g_dict_of_images
         global g_dict_of_plot_dicts
         global g_legend_names
-        g_dict_of_param_dicts, g_dict_of_histograms, g_dict_of_images, g_dict_of_plot_dicts = getRunDicts(database_name,folder_name)
+        g_dict_of_param_dicts, g_dict_of_plot_dicts, g_dict_of_images, g_dict_of_histograms = getRunDicts(database_name,folder_name)
        
         ################ **Interacting with DataTable to get Selected Runs** ##################
         times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
@@ -178,7 +178,10 @@ def add_more_datapoints(n_intervals,values):
         [Input('buffer','children')],
         )
 def update_table(children):
-    return g_dict_of_param_dicts
+    rows= [value for key,value in g_dict_of_param_dicts.items()]
+    print("line break")
+    print(type(rows))
+    return rows
 ## Table columns
 @app.callback(
         Output("datatable","columns"),
@@ -191,18 +194,18 @@ def update_table_columns(children):
 ## Debug
 @app.callback(
         Output('debug','children'),
-        [Input("legend",'value')]
+        [Input("buffer",'children')]
+        )
+def printer(children):
+    return "Debug Value 1:"+str(children)
+
+@app.callback(
+        Output('debug2','children'),
+        [Input("datatable",'rows')],
         )
 def printer(rows):
-    return "Debug Value 1:"+str(rows)
-
-# @app.callback(
-        # Output('debug2','children'),
-        # [Input("debug",'children')],
-        # [State("debug2","children")]
-        # )
-# def printer(rows,children):
     # return str(children)+str(rows[14:])
+    return "Debug Value 2:"+str(rows)
  
 if __name__=='__main__':
     app.run_server(port=8000,debug=True)
