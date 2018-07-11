@@ -5,7 +5,7 @@ from datetime import datetime
 import ipdb
 import itertools
 
-def getTable(database_name,folder_name):
+def getRunDicts(database_name,folder_name):
     '''
     returns a dataframe with the experiment parameters for each run in the folder
     '''
@@ -14,7 +14,7 @@ def getTable(database_name,folder_name):
     ## all the runs in the folder
     runs_iterator = runs.find()
 
-    table_rows =[]
+    dict_of_param_dicts = {}
     dict_of_plot_dicts = {}
     dict_of_images={}
     dict_of_histograms={}
@@ -23,10 +23,10 @@ def getTable(database_name,folder_name):
         ## Datatable and RadioItems Components needs all experiment parameters from each run in a list
         ## No need to use try-except block here because Logger will always create this key
         Experimental_Parameters = run_object['Experimental Parameters']
-        table_rows.append(Experimental_Parameters)
+        time = Experimental_Parameters['Time']
+        dict_of_plot_dicts[time]=Experimental_Parameters
         list_of_experimental_parameters_for_each_run.append(Experimental_Parameters.keys())
 
-        time = Experimental_Parameters['Time']
         try:
             ## Graph Components need to index into a Time and then the variable
             Plots=run_object['Plots']
@@ -44,13 +44,12 @@ def getTable(database_name,folder_name):
         except KeyError:
             pass
 
-        ipdb.set_trace()
     legend_values = sorted(set(list(itertools.chain(*list_of_experimental_parameters_for_each_run))))
-    return table_rows,dict_of_plot_dicts,dict_of_images,dict_of_histograms, legend_values
+    return dict_of_param_dicts,dict_of_plot_dicts,dict_of_images,dict_of_histograms, legend_values
 
 
 if __name__ == '__main__':
-    df,var_names = getTable('software_testing','lunarlander')
+    df,var_names = getRunDicts('software_testing','lunarlander')
 
 
 
