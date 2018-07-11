@@ -4,27 +4,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import itertools
 import ipdb
-
-def createListOfButtonGraph(dict_of_plot_dicts,plot_names):
-    html_div_list=[]
-    for plot in plot_names:
-        button = html.Div([html.Div(html.Button(plot,id=plot+'button',className='active'),className='col-md-12')],className="row")
-        html_div_list.append(button)
-
-        graph = html.Div([html.Div(dcc.Graph(id=plot+'plot',figure=getInitialFigure(dict_of_plot_dicts,plot)),className="col-md-12")],className="row",id=plot+'plotrow')
-        html_div_list.append(graph)
-    return html_div_list
-
-def getInitialFigure(dict_of_plot_dicts,plot):
-    '''
-    Gets the data for all the runs with the input plotiable name and plots them on one graph
-    '''
-    plot_for_each_run=[]
-    for time,one_run_dict in dict_of_plot_dicts.items():
-        run_dict = {'y':one_run_dict[plot]}
-        plot_for_each_run.append(run_dict)
-    figure_dict= {'data':plot_for_each_run}
-    return figure_dict
+import plotly.graph_objs as go
 
 def getSelectedRunsFromDatatable(rows,selected_row_indices):
     if selected_row_indices==[]:

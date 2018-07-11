@@ -13,7 +13,7 @@ import sys
 import plotly.graph_objs as go
 
 
-
+################ **App Startup** ##################
 app = dash.Dash(__name__)
 # Boostrap CSS.
 app.css.append_css({
@@ -34,15 +34,47 @@ app.scripts.append_script({
 app.scripts.append_script({
     "external_url": "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
 })
-################################################################
 
-# num_graphs = len(df['Time'].unique())
+################ **Global Variables** ##################
 database_name='software_testing'
 folder_name='lunarlander'
 g_dict_of_param_dicts,g_dict_of_plot_dicts,g_dict_of_images,g_dict_of_histograms = getRunDicts(database_name,folder_name)
 g_plot_names = getPlotNames(g_dict_of_plot_dicts)
 g_legend_names = getLegendNames(g_dict_of_param_dicts)
+g_inital_legend_name = g_legend_names[0]
 
+################ **Layout Helper Functions** ##################
+def createListOfButtonGraph(plot_names, legend_value):
+    html_div_list=[]
+    for plot in plot_names:
+        button = html.Div([html.Div(html.Button(plot,id=plot+'button',className='active'),className='col-md-12')],className="row")
+        html_div_list.append(button)
+
+        graph = html.Div([html.Div(dcc.Graph(id=plot+'plot',figure=getInitialFigure(plot,legend_value)),className="col-md-12")],className="row",id=plot+'plotrow')
+        html_div_list.append(graph)
+    return html_div_list
+
+def getInitialFigure(plot_name,legend_value):
+    '''
+    Gets the data for all the runs with the input plotiable name and plots them on one graph
+    '''
+    plot_for_each_run=[]
+    for one_run_plots,one_run_params in zip(g_dict_of_plot_dicts.values(),g_dict_of_param_dicts.values()):
+        # run_dict = {'y':one_run_plots[plot_name]}
+        # plot_for_each_run.append(run_dict)
+
+        scatter_obj = go.Scatter(
+                y = list(one_run_plots[plot_name]),
+                mode = 'lines',
+                name = legend_value+":"+str(one_run_params[legend_value]),
+                text = legend_value+":"+str(one_run_params[legend_value]),
+                hoverinfo='text'
+                )
+        plot_for_each_run.append(scatter_obj)
+    figure_dict= {'data':plot_for_each_run}
+    return figure_dict
+
+################ **Layout** ##################
 app.layout = html.Div(
     [html.Div(
         [html.H1("Machine Learning Dashboard", className="text-center")]
@@ -71,7 +103,7 @@ app.layout = html.Div(
                  id='legend',
                  options=[{'label':param,'value':param} for param in g_legend_names],
                  # options=[{'label':"test","value":"test"}],
-                 value=g_legend_names[0],
+                 value = g_inital_legend_name,
                  # labelStyle={'display': 'inline-block'}
                  )
          ,className='col-md-4')
@@ -94,13 +126,14 @@ app.layout = html.Div(
 
     [html.Div(
         [html.P("Debug Value",id='debug',className="text-center")]
-        ,className="row",)]+#style={'display':'none'})]+
+        ,className="row",style={'display':'none'})]+
     [html.Div(
         [html.P("Debug Value",id='debug2',className="text-center")]
-        ,className="row",)]+#style={'display':'none'})]+
+        ,className="row",style={'display':'none'})]+
 
-    createListOfButtonGraph(g_dict_of_plot_dicts,g_plot_names)
+    createListOfButtonGraph(g_plot_names,g_inital_legend_name)
 , className="container-fluid")
+
 
 ################ **Assigning Callbacks** ##################
 for plot_name in g_plot_names:
@@ -128,9 +161,8 @@ for plot_name in g_plot_names:
      Input('datatable', 'rows'),
     ## can change based on user interaction
      Input('datatable', 'selected_row_indices')],
-     [State(plot_name+'plot','figure')]
     )
-    def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices, figure):
+    def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices):
         ################ **Updating Global Variables** ##################
         global g_dict_of_param_dicts
         global g_dict_of_histograms
@@ -171,7 +203,7 @@ for plot_name in g_plot_names:
         )
 def add_more_datapoints(n_intervals,values):
     if None in values:
-        return "true"
+        return "changed"
     else:
         raise Exception
 
@@ -201,7 +233,6 @@ def update_table_columns(children):
         )
 def printer(children):
     return "Debug Value 1:"+str(children)
-
 @app.callback(
         Output('debug2','children'),
         [Input("datatable",'rows')],
