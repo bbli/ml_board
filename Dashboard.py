@@ -182,8 +182,8 @@ def add_more_datapoints(n_intervals,values):
         )
 def update_table(children):
     rows= [value for key,value in g_dict_of_param_dicts.items()]
-    print("line break")
-    print(type(rows))
+    # print("line break")
+    # print(type(rows))
     return rows
 ## Table columns
 @app.callback(
