@@ -39,7 +39,9 @@ app.scripts.append_script({
 # num_graphs = len(df['Time'].unique())
 database_name='software_testing'
 folder_name='lunarlander'
-dict_of_param_dicts,dict_of_plot_dicts,dict_of_images,dict_of_histograms,legend_values = getRunDicts(database_name,folder_name)
+g_dict_of_param_dicts,g_dict_of_plot_dicts,g_dict_of_images,g_dict_of_histograms = getRunDicts(database_name,folder_name)
+g_plot_names = getPlotNames(g_dict_of_plot_dicts)
+g_legend_names = getLegendNames(g_dict_of_param_dicts)
 # ipdb.set_trace()
 
 app.layout = html.Div(
@@ -68,9 +70,9 @@ app.layout = html.Div(
          html.Div(
              dcc.Dropdown(
                  id='legend',
-                 options=[{'label':param,'value':param} for param in legend_values],
+                 options=[{'label':param,'value':param} for param in g_legend_names],
                  # options=[{'label':"test","value":"test"}]
-                 value=legend_values[0],
+                 value=g_legend_names[0],
                  # labelStyle={'display': 'inline-block'}
                  )
          ,className='col-md-4')
@@ -78,9 +80,9 @@ app.layout = html.Div(
      ,className='row')]+
     [html.Div(
         [dt.DataTable(
-            rows= dict_of_param_dicts,
+            rows= g_dict_of_param_dicts,
             # optional - sets the order of columns
-            columns= legend_values,
+            columns= g_legend_names,
 
             row_selectable=True,
             filterable=True,
@@ -98,16 +100,16 @@ app.layout = html.Div(
         [html.P("Debug Value",id='debug2',className="text-center")]
         ,className="row",style={'display':'none'})]+
 
-    createListOfButtonGraph(df,var_names)
+    createListOfButtonGraph(g_dict_of_plot_dicts,g_plot_names)
     # +[html.Div([html.Div(html.Div(dcc.Graph(id=i)),className="col-md-8")])],className="row") for i in range(num_graphs)]
 , className="container-fluid")
 
 ################ **Assigning Callbacks** ##################
-for var in var_names:
+for plot_name in g_plot_names:
     ## Display of Graphs
     @app.callback(
-        Output(var+'plotrow','style'),
-        [Input(var+'button', 'n_clicks')])
+        Output(plot_name+'plotrow','style'),
+        [Input(plot_name+'button', 'n_clicks')])
     def show_figure(n_clicks):
         if n_clicks!=None:
             if n_clicks%2==0:
@@ -119,7 +121,7 @@ for var in var_names:
 
     ## Graph data
     @app.callback(
-    Output(var+'plot', 'figure'),
+    Output(plot_name+'plot', 'figure'),
     ## changes every n seconds if autoupdateToggle is checked
     [Input('buffer','children'),
     ## can change due to user interaction
@@ -128,16 +130,16 @@ for var in var_names:
      Input('datatable', 'rows'),
     ## can change based on user interaction
      Input('datatable', 'selected_row_indices')],
-     [State(var+'plot','figure')]
+     [State(plot_name+'plot','figure')]
     )
     def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices, figure):
         ################ **Updating DataFrame** ##################
-        global dict_of_param_dicts
-        global dict_of_histograms
-        global dict_of_images
-        global dict_of_plot_dicts
-        global legend_values
-        dict_of_param_dicts, dict_of_histograms, dict_of_images, dict_of_plot_dicts, legend_values = getRunDicts(database_name,folder_name)
+        global g_dict_of_param_dicts
+        global g_dict_of_histograms
+        global g_dict_of_images
+        global g_dict_of_plot_dicts
+        global g_legend_names
+        g_dict_of_param_dicts, g_dict_of_histograms, g_dict_of_images, g_dict_of_plot_dicts = getRunDicts(database_name,folder_name)
        
         ################ **Interacting with DataTable to get Selected Runs** ##################
         times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
@@ -145,11 +147,11 @@ for var in var_names:
         plot_for_each_run=[]
         ## creating the data dictionary for each run
         for time in times_of_each_run:
-            one_run_plots = dict_of_plot_dicts[time]
-            one_run_params = dict_of_param_dicts[time]
-            # run_dict = {'y':list(filtered_df[var])}
+            one_run_plots = g_dict_of_plot_dicts[time]
+            one_run_params = g_dict_of_param_dicts[time]
+            # run_dict = {'y':list(filtered_df[plot_name])}
             scatter_obj = go.Scatter(
-                    y = list(one_run_plots[var]),
+                    y = list(one_run_plots[plot_name]),
                     mode = 'lines',
                     name = legend_value+":"+str(one_run_params[legend_value]),
                     text = legend_value+":"+str(one_run_params[legend_value]),
@@ -178,14 +180,14 @@ def add_more_datapoints(n_intervals,values):
         [Input('buffer','children')],
         )
 def update_table(children):
-    return dict_of_param_dicts
+    return g_dict_of_param_dicts
 ## Table columns
 @app.callback(
         Output("datatable","columns"),
         [Input('buffer','children')],
         )
 def update_table_columns(children):
-    return legend_values
+    return g_legend_names
 
 
 ## Debug
@@ -206,5 +208,5 @@ def printer(rows):
  
 if __name__=='__main__':
     app.run_server(port=8000,debug=True)
-    # div_list=createListOfButtonGraph(var_names)
+    # div_list=createListOfButtonGraph(plot_name)
     # getFigure('Loss')

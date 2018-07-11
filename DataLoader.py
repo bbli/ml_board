@@ -18,14 +18,12 @@ def getRunDicts(database_name,folder_name):
     dict_of_plot_dicts = {}
     dict_of_images={}
     dict_of_histograms={}
-    list_of_experimental_parameters_for_each_run=[]
     for run_object in runs_iterator:
         ## Datatable and RadioItems Components needs all experiment parameters from each run in a list
         ## No need to use try-except block here because Logger will always create this key
         Experimental_Parameters = run_object['Experimental Parameters']
         time = Experimental_Parameters['Time']
         dict_of_plot_dicts[time]=Experimental_Parameters
-        list_of_experimental_parameters_for_each_run.append(Experimental_Parameters.keys())
 
         try:
             ## Graph Components need to index into a Time and then the variable
@@ -44,12 +42,13 @@ def getRunDicts(database_name,folder_name):
         except KeyError:
             pass
 
-    legend_values = sorted(set(list(itertools.chain(*list_of_experimental_parameters_for_each_run))))
-    return dict_of_param_dicts,dict_of_plot_dicts,dict_of_images,dict_of_histograms, legend_values
+    return dict_of_param_dicts,dict_of_plot_dicts,dict_of_images,dict_of_histograms 
 
 
 if __name__ == '__main__':
-    df,var_names = getRunDicts('software_testing','lunarlander')
+    dict_of_plot_dicts,dict_of_param_dicts,dict_of_histograms,dict_of_images = getRunDicts('software_testing','lunarlander')
+    plot_names = getPlotNames(dict_of_plot_dicts)
+    legend_names = getLegendNames(dict_of_param_dicts)
 
 
 
