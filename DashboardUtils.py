@@ -28,9 +28,9 @@ def getLegendNames(dict_of_param_dicts):
     legend_names = sorted(set(list(itertools.chain(*list_of_param_names))))
     return legend_names
 
-def partial_decomaker(plot_name):
+def partial_decomaker(partial_name):
     def decorator(func):
-        partial_func = partial(func,plot_name=plot_name)
+        partial_func = partial(func,partial_name=partial_name)
         return partial_func
     return decorator
 

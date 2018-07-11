@@ -169,7 +169,8 @@ for plot_name in g_plot_names:
      Input('datatable', 'selected_row_indices')],
     )
     @partial_decomaker(plot_name)
-    def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices,plot_name):
+    def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices,partial_name):
+        plot_name = partial_name
         ################ **Updating Global Variables** ##################
         global g_dict_of_param_dicts
         global g_dict_of_histograms
@@ -232,11 +233,24 @@ def update_table(children):
 def update_table_columns(children):
     return g_legend_names
 
+## Tab callbacks
+for tab_name in g_tab_names[:1]:
+    @app.callback(
+            Output(tab_name,'style'),
+            [Input('tabs','value')]
+            )
+    @partial_decomaker(tab_name)
+    def show_tab(value,partial_name):
+        tab_name = partial_name
 
+        if value==tab_name:
+            return {'display':'inline-block'}
+        else:
+            return {'display':'none'}
 ## Debug
 @app.callback(
         Output('debug','children'),
-        [Input("buffer",'children')]
+        [Input("tabs",'value')]
         )
 def printer(children):
     return "Debug Value 1:"+str(children)
