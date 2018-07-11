@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output
 import itertools
 import ipdb
 import plotly.graph_objs as go
+from functools import partial
 
 def getSelectedRunsFromDatatable(rows,selected_row_indices):
     if selected_row_indices==[]:
@@ -26,6 +27,13 @@ def getLegendNames(dict_of_param_dicts):
         list_of_param_names.append(plot_dict.keys())
     legend_names = sorted(set(list(itertools.chain(*list_of_param_names))))
     return legend_names
+
+def partial_decomaker(plot_name):
+    def decorator(func):
+        partial_func = partial(func,plot_name=plot_name)
+        return partial_func
+    return decorator
+
 from inspect import getsource
 def code(function):
     print(getsource(function))

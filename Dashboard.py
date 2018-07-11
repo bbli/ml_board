@@ -55,9 +55,6 @@ def createListOfButtonGraph(plot_names, legend_value):
     return html_div_list
 
 def getInitialFigure(plot_name,legend_value):
-    '''
-    Gets the data for all the runs with the input plotiable name and plots them on one graph
-    '''
     plot_for_each_run=[]
     for one_run_plots,one_run_params in zip(g_dict_of_plot_dicts.values(),g_dict_of_param_dicts.values()):
         # run_dict = {'y':one_run_plots[plot_name]}
@@ -162,7 +159,8 @@ for plot_name in g_plot_names:
     ## can change based on user interaction
      Input('datatable', 'selected_row_indices')],
     )
-    def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices):
+    @partial_decomaker(plot_name)
+    def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices,plot_name):
         ################ **Updating Global Variables** ##################
         global g_dict_of_param_dicts
         global g_dict_of_histograms

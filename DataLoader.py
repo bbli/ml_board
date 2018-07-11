@@ -1,6 +1,5 @@
 from pymongo import MongoClient
 from LoggerUtils import *
-import pandas as pd
 from datetime import datetime
 import ipdb
 

@@ -14,11 +14,9 @@ class SummaryWriter(Database):
         # self.runs.update_one({"Experimental Parameters.Time":self.date},{'$set':{"Time":self.date}})
 
     def add_scalar(self,variable_name:str, f:int):
-        # self.experiment.update_one({variable_name:{"$exists":"true"}}, {'$push' :{variable_name:f}}, upsert=True)
         self.runs.update_one({"Experimental Parameters.Time":self.date},{'$push':{"Plots."+variable_name:f}},upsert= True)
 
     def add_experiment_parameter(self,parameter_name:str, value:int):
-        # self.experiment.update_one({"Parameters":{"$exists":"true"}}, {'$push':{'Parameters':{parameter_name:value}}}, upsert=True)
         self.runs.update_one({"Experimental Parameters.Time":self.date}, {'$set':{"Experimental Parameters."+parameter_name:value}})
     def viewRun(self):
         '''
