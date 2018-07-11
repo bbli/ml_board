@@ -94,10 +94,10 @@ app.layout = html.Div(
 
     [html.Div(
         [html.P("Debug Value",id='debug',className="text-center")]
-        ,className="row",style={'display':'none'})]+
+        ,className="row",)]+#style={'display':'none'})]+
     [html.Div(
         [html.P("Debug Value",id='debug2',className="text-center")]
-        ,className="row",style={'display':'none'})]+
+        ,className="row",)]+#style={'display':'none'})]+
 
     createListOfButtonGraph(g_dict_of_plot_dicts,g_plot_names)
 , className="container-fluid")
@@ -131,13 +131,16 @@ for plot_name in g_plot_names:
      [State(plot_name+'plot','figure')]
     )
     def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices, figure):
-        ################ **Updating DataFrame** ##################
+        ################ **Updating Global Variables** ##################
         global g_dict_of_param_dicts
         global g_dict_of_histograms
         global g_dict_of_images
         global g_dict_of_plot_dicts
         global g_legend_names
+        global g_plot_names
         g_dict_of_param_dicts, g_dict_of_plot_dicts, g_dict_of_images, g_dict_of_histograms = getRunDicts(database_name,folder_name)
+        g_plot_names = getPlotNames(g_dict_of_plot_dicts)
+        g_legend_names = getLegendNames(g_dict_of_param_dicts)
        
         ################ **Interacting with DataTable to get Selected Runs** ##################
         times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
