@@ -28,6 +28,18 @@ def getLegendNames(dict_of_param_dicts):
     legend_names = sorted(set(list(itertools.chain(*list_of_param_names))))
     return legend_names
 
+def getRunTitle(time):
+    return html.Div(html.Button(time,id=time+'button',className='active'),className='row')
+
+def getPlotlyFigureDict(histo_name,histo_values):
+    histo_data = go.Histogram(x=histo_values,histnorm='probability')
+    histo_layout = go.Layout(title=histo_name)
+    figure_obj = go.Figure(data=histo_data,layout=histo_layout)
+    ## Or 
+    # figure_obj = {'data':go.Figure(data=histo_data,layout=histo_layout)}
+    return figure_obj
+
+
 def partial_decomaker(partial_name):
     def decorator(func):
         partial_func = partial(func,partial_name=partial_name)

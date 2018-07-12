@@ -208,6 +208,38 @@ for plot_name in g_plot_names:
 
         figure_dict= {'data':plot_for_each_run}
         return figure_dict
+@app.callback(
+Output(g_tab_names[2],'children'),
+## changes every n seconds if autoupdateToggle is checked
+[Input('buffer','children'),
+## can change due to user interaction
+ Input('legend','value'),
+## can change due to filter
+ Input('datatable', 'rows'),
+## can change based on user interaction
+ Input('datatable', 'selected_row_indices')],
+)
+def update_histogram_tab(children, legend_value, rows, selected_row_indices):
+    ################ **Interacting with DataTable to get Selected Runs** ##################
+    times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
+    ################ **Creating Histogram Graph Objects** ##################
+    html_row_objects = []
+    for time in times_of_each_run:
+        one_run_histograms = g_dict_of_histograms[time]
+        ##creating a list of html.Div(col-md-6) Graph objects
+        histogram_list = []
+        for histo_name,histo_values in one_run_histograms.items():
+            figure obj = getPlotlyFigureDict(histo_name,histo_values)
+            histo_component = html.Div(dcc.Graph(figure=figure_obj ),className='col-md-6')
+            histogram_list.append(histo_component)
+
+
+        # html_run_title = getRunTitle(time)
+        html_run_title = html.Div(html.Button(time),className='row')
+        html_row_objects.append(html_run_title)
+        html_run_histograms = html.Div(histogram_list,className='row')
+        html_row_objects.append(html_run_histograms)
+    return html_row_objects
 
 # Time toggle buffer
 @app.callback(
