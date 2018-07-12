@@ -32,7 +32,7 @@ def getRunTitle(time):
     return html.Div(html.Button(time,id=time+'button',className='active'),className='row')
 
 def getPlotlyFigureDict(histo_name,histo_values):
-    histo_data = go.Histogram(x=histo_values,histnorm='probability')
+    histo_data = [go.Histogram(x=histo_values,histnorm='probability')]
     histo_layout = go.Layout(title=histo_name)
     figure_obj = go.Figure(data=histo_data,layout=histo_layout)
     ## Or 

@@ -36,7 +36,7 @@ def getRunDicts(database_name,folder_name):
             pass
         try:
             Histograms = run_object['Histograms']
-            dict_of_images[time]=Histograms
+            dict_of_histograms[time]=Histograms
         except KeyError:
             pass
 
