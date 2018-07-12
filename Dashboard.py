@@ -72,6 +72,12 @@ def getInitialFigure(plot_name,legend_value):
     figure_dict= {'data':plot_for_each_run}
     return figure_dict
 
+def createHTMLImageContainer():
+    return html.Div('img',id=g_tab_names[1])
+
+def createHTMLHistogramContainer():
+    return html.Div('histo',id=g_tab_names[2])
+
 ################ **Layout** ##################
 app.layout = html.Div(
     [html.Div(
@@ -136,8 +142,8 @@ app.layout = html.Div(
         )
     ,className="row")]
     +[createListOfButtonGraph(g_plot_names,g_inital_legend_name)]
-    # +createListOfImages
-    # +createListOfHistograms
+    +[createHTMLImageContainer()]
+    +[createHTMLHistogramContainer()]
 , className="container-fluid")
 
 
@@ -234,7 +240,7 @@ def update_table_columns(children):
     return g_legend_names
 
 ## Tab callbacks
-for tab_name in g_tab_names[:1]:
+for tab_name in g_tab_names:
     @app.callback(
             Output(tab_name,'style'),
             [Input('tabs','value')]
