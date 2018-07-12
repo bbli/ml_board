@@ -37,7 +37,8 @@ app.scripts.append_script({
 
 ################ **Global Variables** ##################
 database_name='software_testing'
-folder_name='lunarlander'
+# folder_name='lunarlander'
+folder_name = 'frozen_lake'
 g_dict_of_param_dicts,g_dict_of_plot_dicts,g_dict_of_images,g_dict_of_histograms = getRunDicts(database_name,folder_name)
 g_plot_names = getPlotNames(g_dict_of_plot_dicts)
 g_legend_names = getLegendNames(g_dict_of_param_dicts)
@@ -73,10 +74,23 @@ def getInitialFigure(plot_name,legend_value):
     return figure_dict
 
 def createHTMLImageContainer():
-    return html.Div('img',id=g_tab_names[1])
+    return html.Div(id=g_tab_names[1])
 
 def createHTMLHistogramContainer():
-    return html.Div('histo',id=g_tab_names[2])
+    html_row_objects = []
+    for time,one_run_histogram in g_dict_of_histograms.items():
+        histogram_list=[]
+        for histo_name, histo_value in one_run_histogram.items():
+            figure_obj = getPlotlyFigureDict(histo_name,histo_value)
+            histo_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+histo_name),className='col-md-6')
+            histogram_list.append(histo_component)
+
+        html_run_title = html.Div(html.Button(time),className='row')
+        html_row_objects.append(html_run_title)
+        html_run_histograms = html.Div(histogram_list,className='row')
+        html_row_objects.append(html_run_histograms)
+
+    return html.Div(html_row_objects,id=g_tab_names[2])
 
 ################ **Layout** ##################
 app.layout = html.Div(
@@ -208,28 +222,27 @@ for plot_name in g_plot_names:
 
         figure_dict= {'data':plot_for_each_run}
         return figure_dict
+
 @app.callback(
 Output(g_tab_names[2],'children'),
 ## changes every n seconds if autoupdateToggle is checked
 [Input('buffer','children'),
-## can change due to user interaction
- Input('legend','value'),
 ## can change due to filter
  Input('datatable', 'rows'),
 ## can change based on user interaction
  Input('datatable', 'selected_row_indices')],
 )
-def update_histogram_tab(children, legend_value, rows, selected_row_indices):
+def update_histogram_tab(children, rows, selected_row_indices):
     ################ **Interacting with DataTable to get Selected Runs** ##################
     times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
     ################ **Creating Histogram Graph Objects** ##################
     html_row_objects = []
     for time in times_of_each_run:
-        one_run_histograms = g_dict_of_histograms[time]
+        one_run_histogram = g_dict_of_histograms[time]
         ##creating a list of html.Div(col-md-6) Graph objects
         histogram_list = []
-        for histo_name,histo_values in one_run_histograms.items():
-            figure obj = getPlotlyFigureDict(histo_name,histo_values)
+        for histo_name,histo_values in one_run_histogram.items():
+            figure_obj = getPlotlyFigureDict(histo_name,histo_values)
             histo_component = html.Div(dcc.Graph(figure=figure_obj ),className='col-md-6')
             histogram_list.append(histo_component)
 
@@ -288,17 +301,17 @@ for tab_name in g_tab_names:
 ## Debug
 @app.callback(
         Output('debug','children'),
-        [Input("tabs",'value')]
+        [Input(g_tab_names[2],'children')]
         )
 def printer(children):
     return "Debug Value 1:"+str(children)
-@app.callback(
-        Output('debug2','children'),
-        [Input("datatable",'rows')],
-        )
-def printer(rows):
-    # return str(children)+str(rows[14:])
-    return "Debug Value 2:"+str(rows)
+# @app.callback(
+        # Output('debug2','children'),
+        # [Input("datatable",'rows')],
+        # )
+# def printer(rows):
+    # # return str(children)+str(rows[14:])
+    # return "Debug Value 2:"+str(rows)
  
 if __name__=='__main__':
     app.run_server(port=8000,debug=True)
