@@ -243,7 +243,7 @@ def update_histogram_tab(children, rows, selected_row_indices):
         histogram_list = []
         for histo_name,histo_values in one_run_histogram.items():
             figure_obj = getPlotlyFigureDict(histo_name,histo_values)
-            histo_component = html.Div(dcc.Graph(figure=figure_obj ),className='col-md-6')
+            histo_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+histo_name ),className='col-md-6')
             histogram_list.append(histo_component)
 
 
@@ -252,7 +252,9 @@ def update_histogram_tab(children, rows, selected_row_indices):
         html_row_objects.append(html_run_title)
         html_run_histograms = html.Div(histogram_list,className='row')
         html_row_objects.append(html_run_histograms)
-    return html_row_objects
+    print("line break")
+    print(len(html_row_objects))
+    return html.Div(html_row_objects,id=g_tab_names[2])
 
 # Time toggle buffer
 @app.callback(
@@ -301,7 +303,7 @@ for tab_name in g_tab_names:
 ## Debug
 @app.callback(
         Output('debug','children'),
-        [Input(g_tab_names[2],'children')]
+        [Input('datatable','rows')]
         )
 def printer(children):
     return "Debug Value 1:"+str(children)
