@@ -254,7 +254,7 @@ def update_histogram_tab(children, rows, selected_row_indices):
         html_row_objects.append(html_run_histograms)
     print("line break")
     print(len(html_row_objects))
-    return html.Div(html_row_objects,id=g_tab_names[2])
+    return html_row_objects
 
 # Time toggle buffer
 @app.callback(
