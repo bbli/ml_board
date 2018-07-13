@@ -31,6 +31,7 @@ def getRunDicts(database_name,folder_name):
             pass
         try:
             Images = run_object['Images']
+            Images = {key:pickle.load(value) for key,value in Images.items()}
             dict_of_images[time]=Images
         except KeyError:
             pass
