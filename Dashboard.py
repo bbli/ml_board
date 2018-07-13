@@ -82,7 +82,7 @@ def createHTMLHistogramContainer():
         histogram_list=[]
         for histo_name, histo_value in one_run_histogram.items():
             figure_obj = getPlotlyFigureDict(histo_name,histo_value)
-            histo_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+histo_name),className='col-md-6')
+            histo_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+histo_name),className='col-md-4')
             histogram_list.append(histo_component)
 
         html_run_title = html.Div(html.Button(time),className='row')
@@ -243,7 +243,7 @@ def update_histogram_tab(children, rows, selected_row_indices):
         histogram_list = []
         for histo_name,histo_values in one_run_histogram.items():
             figure_obj = getPlotlyFigureDict(histo_name,histo_values)
-            histo_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+histo_name ),className='col-md-6')
+            histo_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+histo_name ),className='col-md-4')
             histogram_list.append(histo_component)
 
 
@@ -297,7 +297,7 @@ for tab_name in g_tab_names:
         tab_name = partial_name
 
         if value==tab_name:
-            return {'display':'inline-block'}
+            return {'display':'inline'}
         else:
             return {'display':'none'}
 ## Debug
