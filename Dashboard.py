@@ -74,7 +74,19 @@ def getInitialFigure(plot_name,legend_value):
     return figure_dict
 
 def createHTMLImageContainer():
-    return html.Div(id=g_tab_names[1])
+    html_row_objects = []
+    for time,one_run_image in g_dict_of_images.items():
+        histogram_list=[]
+        for image_name, image in one_run_image.items():
+            # figure_obj = getPlotlyFigureDict(image_name,image)
+            # image_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+image_name),className='col-md-4')
+            histogram_list.append(image_component)
+
+        html_run_title = html.Div(html.Button(time),className='row')
+        html_row_objects.append(html_run_title)
+        html_run_histograms = html.Div(histogram_list,className='row')
+        html_row_objects.append(html_run_histograms)
+    return html.Div(html_row_objects,id=g_tab_names[1])
 
 def createHTMLHistogramContainer():
     html_row_objects = []
