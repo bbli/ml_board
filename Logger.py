@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import datetime
-from LoggerUtils import *
+from logger_utils import Database
 import ipdb
 from bson.binary import Binary
 # import cPickle
@@ -21,7 +21,7 @@ class SummaryWriter(Database):
         self.runs.update_one({"Experimental Parameters.Time":self.date},{'$push':{"Histograms."+histogram_name:f}},upsert= True)
     def add_image(self,image_name,image):
         processed_image = Binary(pickle.dumps(image,protocol=2))
-        self.runs.update_one({"Experimental Parameters.Time":self.date},{'$push':{"Images."+image_name:processed_image}},upsert= True)
+        self.runs.update_one({"Experimental Parameters.Time":self.date},{'$set':{"Images."+image_name:processed_image}},upsert= True)
     def add_experiment_parameter(self, parameter_name:str, value:int):
         self.runs.update_one({"Experimental Parameters.Time":self.date}, {'$set':{"Experimental Parameters."+parameter_name:value}})
     def viewRun(self):
