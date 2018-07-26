@@ -11,6 +11,7 @@ import plotly.graph_objs as go
 
 ################ **App Startup** ##################
 app = dash.Dash(__name__)
+app.title = "Machine Learning Dashboard"
 # Boostrap CSS.
 app.css.append_css({
     "external_url": "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"

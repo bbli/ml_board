@@ -66,3 +66,42 @@ def partial_decomaker(partial_name):
 from inspect import getsource
 def code(function):
     print(getsource(function))
+
+class TabProtoType():
+    @staticmethod
+    def getNames(dict_of_dicts):
+        list_of_names = []
+        for time, one_run_dict in dict_of_dicts.items():
+            list_of_names.append(one_run_dict.keys())
+        names = sorted(set(list(itertools.chain(*list_of_names))))
+        return names
+    
+    @staticmethod
+    def assignShowCallback(name,app):
+        @app.callback(
+                Output(name+'row','style'),
+                [Input(name+'button','n_clicks')]
+                )
+        def show_figure(n_clicks):
+            if n_clicks!=None:
+                if n_clicks%2==0:
+                    return {'display':'inline'}
+                else:
+                    return {'display':'None'}
+            ##inital display
+            return {'display':'inline'}
+
+class TabClass(TabProtoType):
+    def __init__(self,title,dict_of_dicts):
+        self.title = title
+        self.dict_of_dicts = dict_of_dicts
+        self.names = self.getNames(self.dict_of_dicts)
+    # def createHTMLStructure():
+
+    def assignCallbacks(self,app):
+        for name in self.names:
+            self.assignShowCallback(name,app)
+            self.assignFigureCallback()
+
+
+
