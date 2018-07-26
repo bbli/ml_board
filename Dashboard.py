@@ -5,11 +5,7 @@ import dash_table_experiments as dt
 from dash.dependencies import Input, Output, State
 from DataLoader import getRunDicts
 import ipdb
-# import logging
-# logging.basicConfig(level=logging.DEBUG)
-# import plotly.graph_objs as go
-from DashboardUtils import *
-import sys
+from board_utils import *
 import plotly.graph_objs as go
 
 
@@ -38,18 +34,20 @@ app.scripts.append_script({
 ################ **Global Variables** ##################
 database_name='software_testing'
 # folder_name='lunarlander'
-folder_name = 'frozen_lake'
+folder_name = 'frozen_lake_thoughts'
 g_dict_of_param_dicts,g_dict_of_plot_dicts,g_dict_of_images,g_dict_of_histograms = getRunDicts(database_name,folder_name)
 g_plot_names = getPlotNames(g_dict_of_plot_dicts)
+g_histo_names = getHistogramNames(g_dict_of_histograms)
 g_legend_names = getLegendNames(g_dict_of_param_dicts)
 g_inital_legend_name = g_legend_names[0]
 
 g_tab_names = ['Plots','Images','Histograms']
 ################ **Layout Helper Functions** ##################
+#########################
 def createListOfButtonGraph(plot_names, legend_value):
     html_div_list=[]
     for plot in plot_names:
-        button = html.Div([html.Div(html.Button(plot,id=plot+'button',className='active'),className='col-md-12')],className="row")
+        button = html.Div(html.Button(plot,id=plot+'button',className='active'),className="row")
         html_div_list.append(button)
 
         graph = html.Div([html.Div(dcc.Graph(id=plot+'plot',figure=getInitialFigure(plot,legend_value)),className="col-md-12")],className="row",id=plot+'plotrow')
@@ -72,20 +70,27 @@ def getInitialFigure(plot_name,legend_value):
         plot_for_each_run.append(scatter_obj)
     figure_dict= {'data':plot_for_each_run}
     return figure_dict
+#########################
 
 def createHTMLImageContainer():
     html_row_objects = []
     for time,one_run_image in g_dict_of_images.items():
-        histogram_list=[]
-        for image_name, image in one_run_image.items():
-            # figure_obj = getPlotlyFigureDict(image_name,image)
-            # image_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+image_name),className='col-md-4')
-            histogram_list.append(image_component)
+        image_list=[]
+        title_list=[]
+        for image_name, base64_image in one_run_image.items():
+            title_component = html.Div(html.H4(image_name,className='text-center'),className='col-md-6')
+            image_component = html.Div(html.Img(src='data:image/png;base64,{}'.format(base64_image),className='center-block'),className='col-md-6')
+            image_list.append(image_component)
+            title_list.append(title_component)
 
         html_run_title = html.Div(html.Button(time),className='row')
         html_row_objects.append(html_run_title)
-        html_run_histograms = html.Div(histogram_list,className='row')
-        html_row_objects.append(html_run_histograms)
+
+        html_image_title = html.Div(title_list,className='row')
+        html_row_objects.append(html_image_title)
+
+        html_run_images = html.Div(image_list,className='row')
+        html_row_objects.append(html_run_images)
     return html.Div(html_row_objects,id=g_tab_names[1])
 
 def createHTMLHistogramContainer():
@@ -102,6 +107,17 @@ def createHTMLHistogramContainer():
         html_run_histograms = html.Div(histogram_list,className='row')
         html_row_objects.append(html_run_histograms)
 
+    return html.Div(html_row_objects,id=g_tab_names[2])
+
+def createHistogramContainers():
+    html_row_objects = []
+    for histo_name in g_histo_names:
+        button_component = html.Div(html.Button(histo_name,id=histo_name+'button'),className='row')
+        html_row_objects.append(button_component)
+        
+        histogram_list = getHistogramComponentsForThisName(histo_name,g_dict_of_histograms)
+        histogram_component = html.Div(histogram_list,className='row') 
+        html_row_objects.append(histogram_component)
     return html.Div(html_row_objects,id=g_tab_names[2])
 
 ################ **Layout** ##################
@@ -169,7 +185,8 @@ app.layout = html.Div(
     ,className="row")]
     +[createListOfButtonGraph(g_plot_names,g_inital_legend_name)]
     +[createHTMLImageContainer()]
-    +[createHTMLHistogramContainer()]
+    +[createHistogramContainers()]
+    # +[createHTMLHistogramContainer()]
 , className="container-fluid")
 
 

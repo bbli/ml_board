@@ -21,6 +21,14 @@ def getPlotNames(dict_of_plot_dicts):
     plot_names = sorted(set(list(itertools.chain(*list_of_plot_names))))
     return plot_names
 
+def getHistogramNames(dict_of_histograms):
+    list_of_histogram_names = []
+    for histogram_dict in dict_of_histograms.values():
+        list_of_histogram_names.append(histogram_dict.keys())
+    histogram_names = sorted(set(list(itertools.chain(*list_of_histogram_names))))
+    return histogram_names
+
+
 def getLegendNames(dict_of_param_dicts):
     list_of_param_names = []
     for time,plot_dict in dict_of_param_dicts.items():
@@ -38,6 +46,15 @@ def getPlotlyFigureDict(histo_name,histo_values):
     ## Or 
     # figure_obj = {'data':go.Figure(data=histo_data,layout=histo_layout)}
     return figure_obj
+
+def getHistogramComponentsForThisName(histo_name,dict_of_histograms_dicts):
+        histogram_list = []
+        for time,histograms_dict in dict_of_histograms_dicts.items():
+            histo_values = histograms_dict[histo_name]
+            figure_obj = getPlotlyFigureDict(time,histo_values)
+            histo_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+histo_name),className='col-md-4')
+            histogram_list.append(histo_component)
+        return histogram_list
 
 
 def partial_decomaker(partial_name):

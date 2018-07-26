@@ -39,7 +39,6 @@ def getRunDicts(database_name,folder_name):
             Images = run_object['Images']
             # Images = {time:value[0] for key,value in Images.items()}
             Images = {image_name:getBase64Encoding(binary_image) for image_name,binary_image in Images.items()}
-            ipdb.set_trace()
             dict_of_images[time]=Images
         except KeyError:
             pass
