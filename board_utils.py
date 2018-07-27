@@ -167,4 +167,30 @@ class PlotTab(BaseTab):
                 hoverinfo='text'
                 )
 
+class HistogramTab(BaseTab):
+    def __init__(self,title,nameObjects_for_each_run,paramObject_for_each_run):
+        super().__init__(title,nameObjects_for_each_run,paramObject_for_each_run)
+    def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
+        histo_component_list = []
+        for time in times_of_each_run:
+            one_run_histogram = self.nameObjects_for_each_run[time]
+            one_run_params = g_dict_of_param_dicts[time]
+
+            histo_component = createHistogramComponent(figure_name,one_run_histogram,one_run_params,legend_value)
+            histo_component_list.append(histo_component)
+
+        return histo_component_list
+
+    def createHistogramComponent(figure_name,one_run_params,legend_value):
+        ################ **Creating Data Object** ##################
+        one_run_values = one_run_histogram[figure_name]
+        histo_data = [go.Histogram(x=one_run_values,histnorm='probability')]
+        histo_layout = go.Layout(title=legend_value+":"+str(one_run_params[legend_value]))
+        data_obj = go.Figure(data=histo_data,layout=histo_layout)
+        ##################################################
+
+        figure_object = dcc.Graph(id=time+'_'+figure_name+' Histogram',figure= data_dict)
+        return html.Div(figure_object,className='col-md-4')
+        
+
 
