@@ -67,20 +67,27 @@ from inspect import getsource
 def code(function):
     print(getsource(function))
 
-class TabProtoType():
+class BaseTab():
+    def __init__(self,title,nameObjects_for_each_run,paramObject_for_each_run):
+        self.title = title
+        self.nameObjects_for_each_run = nameObjects_for_each_run
+        self.paramObject_for_each_run = paramObject_for_each_run
+        self.figure_names = self.getFigureNames(self.nameObjects_for_each_run)
+
     @staticmethod
-    def getNames(dict_of_dicts):
+    def getFigureNames(nameObjects_for_each_run):
         list_of_names = []
-        for time, one_run_dict in dict_of_dicts.items():
+        for time, one_run_dict in nameObjects_for_each_run.items():
             list_of_names.append(one_run_dict.keys())
         names = sorted(set(list(itertools.chain(*list_of_names))))
         return names
     
     @staticmethod
-    def assignShowCallback(name,app):
+    def assignShowCallback(figure_name,app):
         @app.callback(
-                Output(name+'row','style'),
-                [Input(name+'button','n_clicks')]
+                ## Still Need to define this html structure
+                Output(figure_name+'figure_row','style'),
+                [Input(figure_name+'button','n_clicks')]
                 )
         def show_figure(n_clicks):
             if n_clicks!=None:
@@ -90,17 +97,48 @@ class TabProtoType():
                     return {'display':'None'}
             ##inital display
             return {'display':'inline'}
+    def assignFigureCallback(self,figure_name,app):
+        @app.callback(
+                Output(figure_name+'figure_row','children'),
+                [Input('buffer','children'),
+                ## can change due to user interaction
+                 Input('legend','value'),
+                ## can change due to filter
+                 Input('datatable', 'rows'),
+                ## can change based on user interaction
+                 Input('datatable', 'selected_row_indices')],
+                )
+        def update_figure_and_data_structure(children,legend_value,rows,selected_row_indices)
+            ################ **Updating Data Structures** ##################
+            self.nameObjects_for_each_run = getNameObjects(self.title)
+            self.figure_names = self.getFigureNames(self.nameObjects_for_each_run)
+            ################ **Interacting with DataTable to get Selected Runs** ##################
+            times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
+            figure_content_for_this_name = self.getFigureContentForThisName(figure_name,times_of_each_run,legend_value)
+            return figure_content
 
-class TabClass(TabProtoType):
-    def __init__(self,title,dict_of_dicts):
-        self.title = title
-        self.dict_of_dicts = dict_of_dicts
-        self.names = self.getNames(self.dict_of_dicts)
-    # def createHTMLStructure():
+    def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
+        '''
+        figure_name is so we know figure info is pulled correctly
+        times_of_each_run is so we know which runs to pull
+        legend_value for formatting the figure
+        '''
+        raise NotImplementedError("Implement this function!")
+    def createHTMLStructure(self):
+        html_row_list = []
+        for figure_name in self.figure_names:
+            button_row = html.Div(html.Button(name,id=figure_name+'button'),className='row')
+            html_row_list.append(button)
+
+            figure_row = html.Div(className='row',id=figure_name+'figure_row')
+            html_row_list.append(figure_row)
+        return html.Div(html_row_list,id=self.title)
+
+
 
     def assignCallbacks(self,app):
-        for name in self.names:
-            self.assignShowCallback(name,app)
+        for figure_name in self.figure_names:
+            self.assignShowCallback(figure_name,app)
             self.assignFigureCallback()
 
 
