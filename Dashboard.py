@@ -147,8 +147,8 @@ app.layout = html.Div(
         [html.Div(
             dcc.Checklist(
                 id='autoupdateToggle',
-                options=[{'label':'AutoUpdate','values':'On'}],
-                values=[])
+                options=[{'label':'AutoUpdate','value':'On'}],
+                values=['On'])
         ,className ='col-md-2'),
         html.Div(
              dcc.Interval(
@@ -158,7 +158,6 @@ app.layout = html.Div(
         ,className="col-md-1"),
         html.Div(
              html.Div(
-                 "inital value",
                  style={'display':"none"},
                  id='buffer')
         ,className="col-md-5"),
@@ -219,7 +218,7 @@ histoTab_object.assignCallbacks(app)
         [State("autoupdateToggle","values")]
         )
 def add_more_datapoints(n_intervals,values):
-    if None in values:
+    if 'On' in values:
         return "changed"
     else:
         raise Exception
@@ -245,7 +244,7 @@ def update_table_columns(children):
 ## Debug
 @app.callback(
         Output('debug','children'),
-        [Input('datatable','rows')]
+        [Input('buffer','children')]
         )
 def printer(children):
     return "Debug Value 1:"+str(children)
