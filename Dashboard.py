@@ -42,7 +42,6 @@ g_histo_names = getHistogramNames(g_dict_of_histograms)
 g_legend_names = getLegendNames(g_dict_of_param_dicts)
 g_inital_legend_name = g_legend_names[0]
 
-g_tab_names = ['Plots','Images','Histograms']
 ################ **Layout Helper Functions** ##################
 #########################
 def createListOfButtonGraph(plot_names, legend_value):

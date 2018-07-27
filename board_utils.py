@@ -81,12 +81,26 @@ class BaseTab():
             list_of_names.append(one_run_dict.keys())
         names = sorted(set(list(itertools.chain(*list_of_names))))
         return names
-    
+    #########################################
+    def createHTMLStructure(self):
+        html_row_list = []
+        for figure_name in self.figure_names:
+            button_row = html.Div(html.Button(name,id=figure_name+'button'),className='row')
+            html_row_list.append(button)
+
+            figure_row = html.Div(id=figure_name+'content')
+            html_row_list.append(figure_row)
+        return html.Div(html_row_list,id=self.title)
+    def assignCallbacks(self,app):
+        for figure_name in self.figure_names:
+            self.assignShowCallback(figure_name,app)
+            self.assignFigureCallback()
+    ############################################# 
     @staticmethod
     def assignShowCallback(figure_name,app):
         @app.callback(
                 ## Still Need to define this html structure
-                Output(figure_name+'figure_row','style'),
+                Output(figure_name+'content','style'),
                 [Input(figure_name+'button','n_clicks')]
                 )
         def show_figure(n_clicks):
@@ -99,7 +113,7 @@ class BaseTab():
             return {'display':'inline'}
     def assignFigureCallback(self,figure_name,app):
         @app.callback(
-                Output(figure_name+'figure_row','children'),
+                Output(figure_name+'content','children'),
                 [Input('buffer','children'),
                 ## can change due to user interaction
                  Input('legend','value'),
@@ -124,26 +138,10 @@ class BaseTab():
         legend_value for formatting the figure
         '''
         raise NotImplementedError("Implement this function!")
-    def createHTMLStructure(self):
-        html_row_list = []
-        for figure_name in self.figure_names:
-            button_row = html.Div(html.Button(name,id=figure_name+'button'),className='row')
-            html_row_list.append(button)
-
-            figure_row = html.Div(className='row',id=figure_name+'figure_row')
-            html_row_list.append(figure_row)
-        return html.Div(html_row_list,id=self.title)
-
-
-
-    def assignCallbacks(self,app):
-        for figure_name in self.figure_names:
-            self.assignShowCallback(figure_name,app)
-            self.assignFigureCallback()
 
 class PlotTab(BaseTab):
-    def __init__(self,name,nameObjects_for_each_run,paramObject_for_each_run):
-        super().__init__(name,nameObjects_for_each_run,paramObject_for_each_run)
+    def __init__(self,nameObjects_for_each_run,paramObject_for_each_run):
+        super().__init__('Plots',nameObjects_for_each_run,paramObject_for_each_run)
     def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
         plot_for_each_run = []
         for time in times_of_each_run:
@@ -155,21 +153,21 @@ class PlotTab(BaseTab):
 
         data_dict= {'data':plot_for_each_run}
         figure_object = dcc.Graph(id=figure_name+'plot',figure=data_dict)
-
-        return html.Div(figure_object,className='col-md-12')
+        return html.Div(html.Div(figure_object,className='col-md-12'),className='row')
     @staticmethod
-    def createScatterObject(name,one_run_plots,one_run_param,legend_value):
+    def createScatterObject(name,one_run_plots,one_run_params,legend_value):
+        label = legend_value+':'+str(one_run_params[legend_value])
         return go.Scatter(
                 y = list(one_run_plots[name]),
                 mode = 'lines',
-                name = legend_value+":"+str(one_run_params[legend_value]),
-                text = legend_value+":"+str(one_run_params[legend_value]),
+                name = label,
+                text = label,
                 hoverinfo='text'
                 )
 
 class HistogramTab(BaseTab):
-    def __init__(self,title,nameObjects_for_each_run,paramObject_for_each_run):
-        super().__init__(title,nameObjects_for_each_run,paramObject_for_each_run)
+    def __init__(self,nameObjects_for_each_run,paramObject_for_each_run):
+        super().__init__('Histograms',nameObjects_for_each_run,paramObject_for_each_run)
     def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
         histo_component_list = []
         for time in times_of_each_run:
@@ -179,13 +177,14 @@ class HistogramTab(BaseTab):
             histo_component = createHistogramComponent(figure_name,one_run_histogram,one_run_params,legend_value)
             histo_component_list.append(histo_component)
 
-        return histo_component_list
-
-    def createHistogramComponent(figure_name,one_run_params,legend_value):
+        return html.Div(histo_component_list,className='row')
+    @staticmethod
+    def createHistogramComponent(figure_name,one_run_histogram,one_run_params,legend_value):
         ################ **Creating Data Object** ##################
         one_run_values = one_run_histogram[figure_name]
         histo_data = [go.Histogram(x=one_run_values,histnorm='probability')]
-        histo_layout = go.Layout(title=legend_value+":"+str(one_run_params[legend_value]))
+        label = legend_value+':'+str(one_run_params[legend_value])
+        histo_layout = go.Layout(title=label)
         data_obj = go.Figure(data=histo_data,layout=histo_layout)
         ##################################################
 
