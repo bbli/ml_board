@@ -141,5 +141,30 @@ class BaseTab():
             self.assignShowCallback(figure_name,app)
             self.assignFigureCallback()
 
+class PlotTab(BaseTab):
+    def __init__(self,name,nameObjects_for_each_run,paramObject_for_each_run):
+        super().__init__(name,nameObjects_for_each_run,paramObject_for_each_run)
+    def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
+        plot_for_each_run = []
+        for time in times_of_each_run:
+            one_run_plots = self.nameObjects_for_each_run[time]
+            one_run_params = g_dict_of_param_dicts[time]
+            # run_dict = {'y':list(filtered_df[plot_name])}
+            scatter_obj = self.createScatterObject(figure_name,one_run_plots,one_run_params,legend_value)
+            plot_for_each_run.append(scatter_obj)
+
+        data_dict= {'data':plot_for_each_run}
+        figure_object = dcc.Graph(id=figure_name+'plot',figure=data_dict)
+
+        return html.Div(figure_object,className='col-md-12')
+    @staticmethod
+    def createScatterObject(name,one_run_plots,one_run_param,legend_value):
+        return go.Scatter(
+                y = list(one_run_plots[name]),
+                mode = 'lines',
+                name = legend_value+":"+str(one_run_params[legend_value]),
+                text = legend_value+":"+str(one_run_params[legend_value]),
+                hoverinfo='text'
+                )
 
 
