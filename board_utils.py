@@ -193,4 +193,36 @@ class HistogramTab(BaseTab):
         return html.Div(figure_object,className='col-md-4')
         
 
+class ImageTab(BaseTab):
+    def __init__(self,nameObjects_for_each_run,paramObject_for_each_run):
+        super().__init__('Images',nameObjects_for_each_run,paramObject_for_each_run)
+    def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
+        html_row_objects = []
+        ################ **Creating the Components** ##################
+        title_component_list =[]
+        image_component_list = []
+        for time in times_of_each_run:
+            one_run_images = self.nameObjects_for_each_run[time]
+            one_run_params = g_dict_of_param_dicts[time]
+
+            image_component = createImageComponent(figure_name,one_run_images)
+            image_component_list.append(image_component)
+            title_component = createTitleComponent(one_run_params,legend_value)
+            title_component_list.append(title_component)
+        ################ **Creating the two Row Objects** ##################
+        image_title_row = html.Div(image_title_components,className='row')
+        html_row_objects.append(image_title_row)
+        image_component_row = html.Div(image_content_components,className='row')
+        html_row_objects.append(image_component_row)
+        return html_row_objects
+    @staticmethod
+    def createImageComponent(figure_name,one_run_image):
+        base64_image = one_run_image[figure_name]
+        figure_object = html.Img(src='data:image/png;base64,{}'.format(base64_image),className='center-block')
+        return html.Div(figure_object,className='col-md-6')
+    @staticmethod
+    def createTitleComponent(one_run_params,legend_value):
+        label = legend_value+':'+str(one_run_params[legend_value])
+        image_title = html.H4(label,className='text-center')
+        return html.Div(image_title,'col-md-6')
 
