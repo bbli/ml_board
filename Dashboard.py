@@ -47,7 +47,8 @@ class PlotTab(BaseTab):
             plot_for_each_run.append(scatter_obj)
 
         data_dict= {'data':plot_for_each_run}
-        figure_object = dcc.Graph(id=figure_name+'plot',figure=data_dict)
+        ## Note id is required, even though I don't use it in my callbacks
+        figure_object = dcc.Graph(id=figure_name+' Plot',figure= data_dict)
         return html.Div(html.Div(figure_object,className='col-md-12'),className='row')
     @staticmethod
     def createScatterObject(name,one_run_plots,one_run_params,legend_value):
@@ -71,21 +72,22 @@ class HistogramTab(BaseTab):
             one_run_histogram = self.nameObjects_for_each_run[time]
             one_run_params = g_dict_of_param_dicts[time]
 
-            histo_component = createHistogramComponent(figure_name,one_run_histogram,one_run_params,legend_value)
+            histo_component = self.createHistogramComponent(time,figure_name,one_run_histogram,one_run_params,legend_value)
             histo_component_list.append(histo_component)
 
         return html.Div(histo_component_list,className='row')
     @staticmethod
-    def createHistogramComponent(figure_name,one_run_histogram,one_run_params,legend_value):
+    def createHistogramComponent(time,figure_name,one_run_histogram,one_run_params,legend_value):
         ################ **Creating Data Object** ##################
         one_run_values = one_run_histogram[figure_name]
         histo_data = [go.Histogram(x=one_run_values,histnorm='probability')]
         label = legend_value+':'+str(one_run_params[legend_value])
         histo_layout = go.Layout(title=label)
-        data_obj = go.Figure(data=histo_data,layout=histo_layout)
+        data_dict = go.Figure(data=histo_data,layout=histo_layout)
         ##################################################
 
-        figure_object = dcc.Graph(id=time+'_'+figure_name+' Histogram',figure= data_dict)
+        ## Note id is required, even though I don't use it in my callbacks
+        figure_object = dcc.Graph(id=time+':'+figure_name+' Histogram',figure= data_dict)
         return html.Div(figure_object,className='col-md-4')
         
 
@@ -103,16 +105,17 @@ class ImageTab(BaseTab):
             one_run_images = self.nameObjects_for_each_run[time]
             one_run_params = g_dict_of_param_dicts[time]
 
-            image_component = createImageComponent(figure_name,one_run_images)
+            image_component = self.createImageComponent(figure_name,one_run_images)
             image_component_list.append(image_component)
-            title_component = createTitleComponent(one_run_params,legend_value)
+            title_component = self.createTitleComponent(one_run_params,legend_value)
             title_component_list.append(title_component)
         ################ **Creating the two Row Objects** ##################
-        image_title_row = html.Div(image_title_components,className='row')
+        image_title_row = html.Div(title_component_list,className='row')
         html_row_objects.append(image_title_row)
-        image_component_row = html.Div(image_content_components,className='row')
+        image_component_row = html.Div(image_component_list,className='row')
         html_row_objects.append(image_component_row)
         return html_row_objects
+
     @staticmethod
     def createImageComponent(figure_name,one_run_image):
         base64_image = one_run_image[figure_name]
@@ -121,8 +124,9 @@ class ImageTab(BaseTab):
     @staticmethod
     def createTitleComponent(one_run_params,legend_value):
         label = legend_value+':'+str(one_run_params[legend_value])
+        # label = 'hi'
         image_title = html.H4(label,className='text-center')
-        return html.Div(image_title,'col-md-6')
+        return html.Div(image_title,className='col-md-6')
 
 ################ **Global Variables** ##################
 database_name='software_testing'

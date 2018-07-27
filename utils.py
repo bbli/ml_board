@@ -197,12 +197,12 @@ class BaseTab():
             g_dict_of_param_dicts = getParamDict(self.database_name,self.folder_name)
             g_legend_names = getLegendNames(g_dict_of_param_dicts)
 
-            self.nameObjects_for_each_run = getNameObjects(self.title)
-            self.figure_names = self.getFigureNames(self.nameObjects_for_each_run)
+            self.nameObjects_for_each_run = getNameObjects(self.database_name,self.folder_name,self.title,self.f)
+            self.figure_names = getFigureNames(self.nameObjects_for_each_run)
             ################ **Interacting with DataTable to get Selected Runs** ##################
             times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
             figure_content_for_this_name = self.getFigureContentForThisName(figure_name,times_of_each_run,legend_value)
-            return figure_content
+            return figure_content_for_this_name
 
     def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
         '''
