@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import datetime
-from logger_utils import Database
+from utils import Database
 import ipdb
 from bson.binary import Binary
 # import cPickle

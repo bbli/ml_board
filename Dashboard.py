@@ -3,9 +3,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
 from dash.dependencies import Input, Output, State
-from DataLoader import getRunDicts
 import ipdb
-from board_utils import *
+from utils import *
 import plotly.graph_objs as go
 
 
@@ -32,93 +31,112 @@ app.scripts.append_script({
     "external_url": "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
 })
 
+################ **Components** ##################
+class PlotTab(BaseTab):
+    def __init__(self,database_name,folder_name):
+        title = 'Plots'
+        f = None
+        super().__init__(database_name,folder_name,title,f)
+    def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
+        plot_for_each_run = []
+        for time in times_of_each_run:
+            one_run_plots = self.nameObjects_for_each_run[time]
+            one_run_params = g_dict_of_param_dicts[time]
+            # run_dict = {'y':list(filtered_df[plot_name])}
+            scatter_obj = self.createScatterObject(figure_name,one_run_plots,one_run_params,legend_value)
+            plot_for_each_run.append(scatter_obj)
+
+        data_dict= {'data':plot_for_each_run}
+        figure_object = dcc.Graph(id=figure_name+'plot',figure=data_dict)
+        return html.Div(html.Div(figure_object,className='col-md-12'),className='row')
+    @staticmethod
+    def createScatterObject(name,one_run_plots,one_run_params,legend_value):
+        label = legend_value+':'+str(one_run_params[legend_value])
+        return go.Scatter(
+                y = list(one_run_plots[name]),
+                mode = 'lines',
+                name = label,
+                text = label,
+                hoverinfo='text'
+                )
+
+class HistogramTab(BaseTab):
+    def __init__(self,database_name,folder_name):
+        title = 'Histograms'
+        f = None
+        super().__init__(database_name,folder_name,title,f)
+    def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
+        histo_component_list = []
+        for time in times_of_each_run:
+            one_run_histogram = self.nameObjects_for_each_run[time]
+            one_run_params = g_dict_of_param_dicts[time]
+
+            histo_component = createHistogramComponent(figure_name,one_run_histogram,one_run_params,legend_value)
+            histo_component_list.append(histo_component)
+
+        return html.Div(histo_component_list,className='row')
+    @staticmethod
+    def createHistogramComponent(figure_name,one_run_histogram,one_run_params,legend_value):
+        ################ **Creating Data Object** ##################
+        one_run_values = one_run_histogram[figure_name]
+        histo_data = [go.Histogram(x=one_run_values,histnorm='probability')]
+        label = legend_value+':'+str(one_run_params[legend_value])
+        histo_layout = go.Layout(title=label)
+        data_obj = go.Figure(data=histo_data,layout=histo_layout)
+        ##################################################
+
+        figure_object = dcc.Graph(id=time+'_'+figure_name+' Histogram',figure= data_dict)
+        return html.Div(figure_object,className='col-md-4')
+        
+
+class ImageTab(BaseTab):
+    def __init__(self,database_name,folder_name):
+        title = 'Images'
+        f = getBase64Encoding
+        super().__init__(database_name,folder_name,title,f)
+    def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
+        html_row_objects = []
+        ################ **Creating the Components** ##################
+        title_component_list =[]
+        image_component_list = []
+        for time in times_of_each_run:
+            one_run_images = self.nameObjects_for_each_run[time]
+            one_run_params = g_dict_of_param_dicts[time]
+
+            image_component = createImageComponent(figure_name,one_run_images)
+            image_component_list.append(image_component)
+            title_component = createTitleComponent(one_run_params,legend_value)
+            title_component_list.append(title_component)
+        ################ **Creating the two Row Objects** ##################
+        image_title_row = html.Div(image_title_components,className='row')
+        html_row_objects.append(image_title_row)
+        image_component_row = html.Div(image_content_components,className='row')
+        html_row_objects.append(image_component_row)
+        return html_row_objects
+    @staticmethod
+    def createImageComponent(figure_name,one_run_image):
+        base64_image = one_run_image[figure_name]
+        figure_object = html.Img(src='data:image/png;base64,{}'.format(base64_image),className='center-block')
+        return html.Div(figure_object,className='col-md-6')
+    @staticmethod
+    def createTitleComponent(one_run_params,legend_value):
+        label = legend_value+':'+str(one_run_params[legend_value])
+        image_title = html.H4(label,className='text-center')
+        return html.Div(image_title,'col-md-6')
+
 ################ **Global Variables** ##################
 database_name='software_testing'
 # folder_name='lunarlander'
 folder_name = 'frozen_lake_thoughts'
-g_dict_of_param_dicts,g_dict_of_plot_dicts,g_dict_of_images,g_dict_of_histograms = getRunDicts(database_name,folder_name)
-g_plot_names = getPlotNames(g_dict_of_plot_dicts)
-g_histo_names = getHistogramNames(g_dict_of_histograms)
+plotTab_object = PlotTab(database_name,folder_name)
+histoTab_object = HistogramTab(database_name,folder_name)
+imageTab_object = ImageTab(database_name,folder_name)
+
+g_dict_of_param_dicts = getParamDict(database_name,folder_name)
 g_legend_names = getLegendNames(g_dict_of_param_dicts)
 g_inital_legend_name = g_legend_names[0]
 
-################ **Layout Helper Functions** ##################
-#########################
-def createListOfButtonGraph(plot_names, legend_value):
-    html_div_list=[]
-    for plot in plot_names:
-        button = html.Div(html.Button(plot,id=plot+'button',className='active'),className="row")
-        html_div_list.append(button)
-
-        graph = html.Div([html.Div(dcc.Graph(id=plot+'plot',figure=getInitialFigure(plot,legend_value)),className="col-md-12")],className="row",id=plot+'plotrow')
-        html_div_list.append(graph)
-    return html.Div(html_div_list,id=g_tab_names[0])
-
-def getInitialFigure(plot_name,legend_value):
-    plot_for_each_run=[]
-    for one_run_plots,one_run_params in zip(g_dict_of_plot_dicts.values(),g_dict_of_param_dicts.values()):
-        # run_dict = {'y':one_run_plots[plot_name]}
-        # plot_for_each_run.append(run_dict)
-
-        scatter_obj = go.Scatter(
-                y = list(one_run_plots[plot_name]),
-                mode = 'lines',
-                name = legend_value+":"+str(one_run_params[legend_value]),
-                text = legend_value+":"+str(one_run_params[legend_value]),
-                hoverinfo='text'
-                )
-        plot_for_each_run.append(scatter_obj)
-    figure_dict= {'data':plot_for_each_run}
-    return figure_dict
-#########################
-
-def createHTMLImageContainer():
-    html_row_objects = []
-    for time,one_run_image in g_dict_of_images.items():
-        image_list=[]
-        title_list=[]
-        for image_name, base64_image in one_run_image.items():
-            title_component = html.Div(html.H4(image_name,className='text-center'),className='col-md-6')
-            image_component = html.Div(html.Img(src='data:image/png;base64,{}'.format(base64_image),className='center-block'),className='col-md-6')
-            image_list.append(image_component)
-            title_list.append(title_component)
-
-        html_run_title = html.Div(html.Button(time),className='row')
-        html_row_objects.append(html_run_title)
-
-        html_image_title = html.Div(title_list,className='row')
-        html_row_objects.append(html_image_title)
-
-        html_run_images = html.Div(image_list,className='row')
-        html_row_objects.append(html_run_images)
-    return html.Div(html_row_objects,id=g_tab_names[1])
-
-def createHTMLHistogramContainer():
-    html_row_objects = []
-    for time,one_run_histogram in g_dict_of_histograms.items():
-        histogram_list=[]
-        for histo_name, histo_value in one_run_histogram.items():
-            figure_obj = getPlotlyFigureDict(histo_name,histo_value)
-            histo_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+histo_name),className='col-md-4')
-            histogram_list.append(histo_component)
-
-        html_run_title = html.Div(html.Button(time),className='row')
-        html_row_objects.append(html_run_title)
-        html_run_histograms = html.Div(histogram_list,className='row')
-        html_row_objects.append(html_run_histograms)
-
-    return html.Div(html_row_objects,id=g_tab_names[2])
-
-def createHistogramContainers():
-    html_row_objects = []
-    for histo_name in g_histo_names:
-        button_component = html.Div(html.Button(histo_name,id=histo_name+'button'),className='row')
-        html_row_objects.append(button_component)
-        
-        histogram_list = getHistogramComponentsForThisName(histo_name,g_dict_of_histograms)
-        histogram_component = html.Div(histogram_list,className='row') 
-        html_row_objects.append(histogram_component)
-    return html.Div(html_row_objects,id=g_tab_names[2])
+g_tab_names = [plotTab_object.title,histoTab_object.title,imageTab_object.title]
 
 ################ **Layout** ##################
 app.layout = html.Div(
@@ -183,107 +201,16 @@ app.layout = html.Div(
             id='tabs'
         )
     ,className="row")]
-    +[createListOfButtonGraph(g_plot_names,g_inital_legend_name)]
-    +[createHTMLImageContainer()]
-    +[createHistogramContainers()]
-    # +[createHTMLHistogramContainer()]
+    +[plotTab_object.createHTMLStructure()]
+    +[imageTab_object.createHTMLStructure()]
+    +[histoTab_object.createHTMLStructure()]
 , className="container-fluid")
 
 
 ################ **Assigning Callbacks** ##################
-for plot_name in g_plot_names:
-    # Display of Graphs
-    @app.callback(
-        Output(plot_name+'plotrow','style'),
-        [Input(plot_name+'button', 'n_clicks')])
-    def show_figure(n_clicks):
-        if n_clicks!=None:
-            if n_clicks%2==0:
-                return {'display':'inline'}
-            else:
-                return {'display':'None'}
-        ##inital display
-        return {'display':'inline'}
-
-    ## Graph data
-    @app.callback(
-    Output(plot_name+'plot', 'figure'),
-    ## changes every n seconds if autoupdateToggle is checked
-    [Input('buffer','children'),
-    ## can change due to user interaction
-     Input('legend','value'),
-    ## can change due to filter
-     Input('datatable', 'rows'),
-    ## can change based on user interaction
-     Input('datatable', 'selected_row_indices')],
-    )
-    @partial_decomaker(plot_name)
-    def update_figure_and_python_dicts(children, legend_value, rows, selected_row_indices,partial_name):
-        plot_name = partial_name
-        ################ **Updating Global Variables** ##################
-        global g_dict_of_param_dicts
-        global g_dict_of_histograms
-        global g_dict_of_images
-        global g_dict_of_plot_dicts
-        global g_legend_names
-        global g_plot_names
-        g_dict_of_param_dicts, g_dict_of_plot_dicts, g_dict_of_images, g_dict_of_histograms = getRunDicts(database_name,folder_name)
-        g_plot_names = getPlotNames(g_dict_of_plot_dicts)
-        g_legend_names = getLegendNames(g_dict_of_param_dicts)
-       
-        ################ **Interacting with DataTable to get Selected Runs** ##################
-        times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
-        ################ **Using DataFrame to Plot** ##################
-        plot_for_each_run=[]
-        ## creating the data dictionary for each run
-        for time in times_of_each_run:
-            one_run_plots = g_dict_of_plot_dicts[time]
-            one_run_params = g_dict_of_param_dicts[time]
-            # run_dict = {'y':list(filtered_df[plot_name])}
-            scatter_obj = go.Scatter(
-                    y = list(one_run_plots[plot_name]),
-                    mode = 'lines',
-                    name = legend_value+":"+str(one_run_params[legend_value]),
-                    text = legend_value+":"+str(one_run_params[legend_value]),
-                    hoverinfo='text'
-                    )
-            plot_for_each_run.append(scatter_obj)
-
-        figure_dict= {'data':plot_for_each_run}
-        return figure_dict
-
-@app.callback(
-Output(g_tab_names[2],'children'),
-## changes every n seconds if autoupdateToggle is checked
-[Input('buffer','children'),
-## can change due to filter
- Input('datatable', 'rows'),
-## can change based on user interaction
- Input('datatable', 'selected_row_indices')],
-)
-def update_histogram_tab(children, rows, selected_row_indices):
-    ################ **Interacting with DataTable to get Selected Runs** ##################
-    times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
-    ################ **Creating Histogram Graph Objects** ##################
-    html_row_objects = []
-    for time in times_of_each_run:
-        one_run_histogram = g_dict_of_histograms[time]
-        ##creating a list of html.Div(col-md-6) Graph objects
-        histogram_list = []
-        for histo_name,histo_values in one_run_histogram.items():
-            figure_obj = getPlotlyFigureDict(histo_name,histo_values)
-            histo_component = html.Div(dcc.Graph(figure=figure_obj,id=time+':'+histo_name ),className='col-md-4')
-            histogram_list.append(histo_component)
-
-
-        # html_run_title = getRunTitle(time)
-        html_run_title = html.Div(html.Button(time),className='row')
-        html_row_objects.append(html_run_title)
-        html_run_histograms = html.Div(histogram_list,className='row')
-        html_row_objects.append(html_run_histograms)
-    print("line break")
-    print(len(html_row_objects))
-    return html_row_objects
+plotTab_object.assignCallbacks(app)
+imageTab_object.assignCallbacks(app)
+histoTab_object.assignCallbacks(app)
 
 # Time toggle buffer
 @app.callback(
@@ -315,20 +242,6 @@ def update_table(children):
 def update_table_columns(children):
     return g_legend_names
 
-## Tab callbacks
-for tab_name in g_tab_names:
-    @app.callback(
-            Output(tab_name,'style'),
-            [Input('tabs','value')]
-            )
-    @partial_decomaker(tab_name)
-    def show_tab(value,partial_name):
-        tab_name = partial_name
-
-        if value==tab_name:
-            return {'display':'inline'}
-        else:
-            return {'display':'none'}
 ## Debug
 @app.callback(
         Output('debug','children'),
