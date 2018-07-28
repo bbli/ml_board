@@ -27,6 +27,7 @@ class SummaryWriter(Database):
     def add_experiment_parameter(self, parameter_name:str, value:int):
         self.runs.update_one({"Experimental Parameters.Time":self.date}, {'$set':{"Experimental Parameters."+parameter_name:value}})
     def add_thought(self,string):
+        self.runs.update_one({"Experimental Parameters.Time":self.date},{'$push':{"Thoughts":self.folder_name}},upsert= True)
         self.runs.update_one({"Experimental Parameters.Time":self.date},{'$push':{"Thoughts":string}},upsert= True)
     def viewRun(self):
         '''

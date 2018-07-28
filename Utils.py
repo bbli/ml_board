@@ -137,14 +137,13 @@ def getFigureNames(nameObjects_for_each_run):
     return names
 
 ##############################################################
-def getThoughtListFromDatabase(database_name):
+def getDictOfAllThoughtLists(database_name):
     mongo = Database()
     folder_iterators_list = mongo.getAllFolderIteratorsFromDatabase(database_name)
     database_dict = {}
     for folder_iterator in folder_iterators_list:
         dict_of_thoughtlists = getDictOfThoughtLists(folder_iterator)
         database_dict.update(dict_of_thoughtlists)
-        # appendThoughtListsToDatabaseDictionary(dict_of_thoughtlists,database_dict)
     mongo.close()
     return database_dict
 
@@ -156,25 +155,29 @@ def getDictOfThoughtLists(folder_iterator):
         time = Experimental_Parameters['Time']
         try:
             thought_list = run_object['Thoughts']
+            ## eliminating the extra self.folder_name logs
             dict_of_thoughtlists[time]=thought_list
         except KeyError:
             print("Run object does not have 'Thoughts' as a key")
 
     return dict_of_thoughtlists
-def appendThoughtListsToDatabaseDictionary(new_dict,total_dict):
-
-    for key,value in new_dict.items():
-        total_dict[key]=value
 #########################
 def getOrderedKeys(dict_of_thoughtlists):
     return sorted(dict_of_thoughtlists.keys())
 
 def createThoughts(list_of_thoughts):
     paragraph_list = []
-    for thought in list_of_thoughts:
+    ## skipping the folder_names
+    for thought in list_of_thoughts[1::2]:
         paragraph = html.P(thought)
         paragraph_list.append(paragraph)
     return paragraph_list
+
+def createThoughtsTitle(list_of_thoughts,time):
+    folder_name = list_of_thoughts[0]
+    ## No need for year and seconds
+    title_row = html.Div(html.B(time[5:-3]+': '+folder_name),className='row')
+    return title_row
 
 ##############################################################
 
