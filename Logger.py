@@ -7,9 +7,11 @@ from bson.binary import Binary
 import pickle
 
 class SummaryWriter(Database):
-    def __init__(self,folder_name,run_name):
+    def __init__(self,database_name,folder_name):
         super().__init__()
-        self.runs = self.client[folder_name][run_name]
+        self.database_name = database_name
+        self.folder_name = folder_name
+        self.runs = self.client[database_name][folder_name]
 
         self.date = datetime.datetime.today().strftime("%Y-%m-%d-%H:%M:%S")
         self.runs.insert_one( {"Experimental Parameters":{"Time":self.date}})

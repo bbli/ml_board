@@ -120,13 +120,13 @@ class ImageTab(BaseTab):
     def createImageComponent(figure_name,one_run_image):
         base64_image = one_run_image[figure_name]
         figure_object = html.Img(src='data:image/png;base64,{}'.format(base64_image),className='center-block')
-        return html.Div(figure_object,className='col-md-6')
+        return html.Div(figure_object,className='col-md-4')
     @staticmethod
     def createTitleComponent(one_run_params,legend_value):
         label = legend_value+':'+str(one_run_params[legend_value])
         # label = 'hi'
         image_title = html.H4(label,className='text-center')
-        return html.Div(image_title,className='col-md-6')
+        return html.Div(image_title,className='col-md-4')
 
 ################ **Global Variables** ##################
 database_name='software_testing'

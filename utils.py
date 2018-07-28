@@ -22,21 +22,31 @@ class Database():
     # def removeDataBase(self,folder_name):
         # self.client.drop_database(folder_name)
 
-    def removeCollection(self,folder_name,run_name):
-        self.client[folder_name][run_name].drop()
+    def removeFolder(self,database_name,folder_name):
+        self.client[database_name][folder_name].drop()
 
-    def viewDataBase(self,folder_name):
+    def viewDataBase(self,database_name):
         '''
         show all collections in a folder
         '''
         # include include_system_collections=False?
-        for collection in self.client[folder_name].collection_names():
+        for collection in self.client[database_name].list_collection_names():
             print(collection)
-    def viewCollection(self,folder_name,run_name):
+    def getAllFolderIteratorsFromDatabase(self,database_name):
+        folder_iterators_list= []
+        folder_names = self.client[self.database_name].list_collection_names()
+        for folder_name in folder_names:
+            iterator = self.client[self.database_name][folder_name].find()
+            folder_iterators_list.append(iterator)
+
+        return folder_iterators_list
+
+
+    def viewFolder(self,database_name,folder_name):
         '''
         show all documents in a collection
         '''
-        for doc in self.client[folder_name][run_name].find():
+        for doc in self.client[database_name][folder_name].find():
             print(doc)
     def close(self):
         self.client.close()
@@ -85,7 +95,7 @@ def getLegendNames(dict_of_param_dicts):
     legend_names = sorted(set(list(itertools.chain(*list_of_param_names))))
     return legend_names
 ## Object Related
-def getNameObjects(database_name,folder_name,name,f=None):
+def getDictOfNameObjects(database_name,folder_name,name,f=None):
     mongo = Database()
     runs = mongo.client[database_name][folder_name]
     ## all the runs in the folder
@@ -140,7 +150,7 @@ class BaseTab():
     def __init__(self,database_name,folder_name,title,f):
         self.title = title
         self.f = f
-        self.nameObjects_for_each_run = getNameObjects(database_name,folder_name,self.title,self.f)
+        self.nameObjects_for_each_run = getDictOfNameObjects(database_name,folder_name,self.title,self.f)
         self.figure_names = getFigureNames(self.nameObjects_for_each_run)
         self.database_name = database_name
         self.folder_name = folder_name
@@ -197,7 +207,7 @@ class BaseTab():
             g_dict_of_param_dicts = getParamDict(self.database_name,self.folder_name)
             g_legend_names = getLegendNames(g_dict_of_param_dicts)
 
-            self.nameObjects_for_each_run = getNameObjects(self.database_name,self.folder_name,self.title,self.f)
+            self.nameObjects_for_each_run = getDictOfNameObjects(self.database_name,self.folder_name,self.title,self.f)
             self.figure_names = getFigureNames(self.nameObjects_for_each_run)
             ################ **Interacting with DataTable to get Selected Runs** ##################
             times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)

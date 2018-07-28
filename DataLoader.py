@@ -77,9 +77,9 @@ if __name__ == '__main__':
         runDict_for_each_name = {}
         for name in g_tab_names:
             if name == 'Images'
-                nameObjects_for_each_run = getNameObjects('software_testing','frozen_lake_image',name,f=getBase64Encoding)
+                nameObjects_for_each_run = getDictOfNameObjects('software_testing','frozen_lake_image',name,f=getBase64Encoding)
             else:
-                nameObjects_for_each_run = getNameObjects('software_testing','frozen_lake_image',name)
+                nameObjects_for_each_run = getDictOfNameObjects('software_testing','frozen_lake_image',name)
             runDict_for_each_name[name]=nameObjects_for_each_run
         return runDict_for_each_name
     runDict_for_each_name = test()
