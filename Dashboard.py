@@ -99,47 +99,38 @@ class ImageTab(BaseTab):
     def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
         html_row_objects = []
         ################ **Creating the Components** ##################
-        title_component_list =[]
         image_component_list = []
         for time in times_of_each_run:
             one_run_images = self.nameObjects_for_each_run[time]
             one_run_params = g_dict_of_param_dicts[time]
 
-            image_component = self.createImageComponent(figure_name,one_run_images)
+            image_component = self.createImageComponent(figure_name,one_run_images,one_run_params,legend_value)
             image_component_list.append(image_component)
-            title_component = self.createTitleComponent(one_run_params,legend_value)
-            title_component_list.append(title_component)
-        ################ **Creating the two Row Objects** ##################
-        image_title_row = html.Div(title_component_list,className='row')
-        html_row_objects.append(image_title_row)
         image_component_row = html.Div(image_component_list,className='row')
         html_row_objects.append(image_component_row)
         return html_row_objects
-
     @staticmethod
-    def createImageComponent(figure_name,one_run_image):
+    def createImageComponent(figure_name,one_run_image,one_run_params,legend_value):
         base64_image = one_run_image[figure_name]
         figure_object = html.Img(src='data:image/png;base64,{}'.format(base64_image),className='center-block')
-        return html.Div(figure_object,className='col-md-4')
-    @staticmethod
-    def createTitleComponent(one_run_params,legend_value):
-        label = legend_value+':'+str(one_run_params[legend_value])
-        # label = 'hi'
-        image_title = html.H4(label,className='text-center')
-        return html.Div(image_title,className='col-md-4')
+        figure_caption = legend_value+':'+str(one_run_params[legend_value])
+        figure=html.Figure([figure_caption,figure_object],style={'text-align':'center'})
+        return html.Div(figure,className='col-md-4')
 
 class ThoughtsTab(BaseTab):
     def __init__(self,database_name):
         self.title = 'Thoughts'
-        self.thoughtList_from_database = getThoughtListFromDatabase(database_name)
-        self.ordered_thoughtList_keys = getOrderedKeys(self.thoughtList_from_database)
+        self.dict_of_all_thought_lists = getDictOfAllThoughtLists(database_name)
+        self.ordered_thoughtList_keys = getOrderedKeys(self.dict_of_all_thought_lists)
     def createHTMLStructure(self):
         html_row_list = []
         for time in self.ordered_thoughtList_keys:
-            title_row = html.Div(html.H6(time),className='row')
+            thought_list = self.dict_of_all_thought_lists[time]
+
+            title_row = createThoughtsTitle(thought_list,time)
             html_row_list.append(title_row)
 
-            paragraph_for_each_thought = createThoughts(self.thoughtList_from_database[time])
+            paragraph_for_each_thought = createThoughts(thought_list)
             paragraph_row = html.Div(paragraph_for_each_thought,className='row')
             html_row_list.append(paragraph_row)
         return html.Div(html_row_list,id=self.title)
@@ -215,7 +206,7 @@ app.layout = html.Div(
 
     [html.Div(
         [html.P("Debug Value",id='debug',className="text-center")]
-    ,className="row",)]+#style={'display':'none'})]+
+    ,className="row",style={'display':'none'})]+
     [html.Div(
         [html.P("Debug Value",id='debug2',className="text-center")]
     ,className="row",style={'display':'none'})]+
