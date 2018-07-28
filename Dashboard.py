@@ -4,7 +4,7 @@ import dash_html_components as html
 import dash_table_experiments as dt
 from dash.dependencies import Input, Output, State
 import ipdb
-from utils import *
+from Utils import *
 import plotly.graph_objs as go
 
 
@@ -128,6 +128,27 @@ class ImageTab(BaseTab):
         image_title = html.H4(label,className='text-center')
         return html.Div(image_title,className='col-md-4')
 
+class ThoughtsTab(BaseTab):
+    def __init__(self,database_name):
+        self.title = 'Thoughts'
+        self.thoughtList_from_database = getThoughtListFromDatabase(database_name)
+        self.ordered_thoughtList_keys = getOrderedKeys(self.thoughtList_from_database)
+    def createHTMLStructure(self):
+        html_row_list = []
+        for time in self.ordered_thoughtList_keys:
+            title_row = html.Div(html.H6(time),className='row')
+            html_row_list.append(title_row)
+
+            paragraph_for_each_thought = createThoughts(self.thoughtList_from_database[time])
+            paragraph_row = html.Div(paragraph_for_each_thought,className='row')
+            html_row_list.append(paragraph_row)
+        return html.Div(html_row_list,id=self.title)
+    def assignCallbacks(self,app):
+        self.assignTabShowCallback(app)
+        
+        
+
+
 ################ **Global Variables** ##################
 database_name='software_testing'
 # folder_name='lunarlander'
@@ -135,12 +156,13 @@ folder_name = 'frozen_lake_thoughts'
 plotTab_object = PlotTab(database_name,folder_name)
 histoTab_object = HistogramTab(database_name,folder_name)
 imageTab_object = ImageTab(database_name,folder_name)
+thoughtTab_object = ThoughtsTab(database_name)
 
 g_dict_of_param_dicts = getParamDict(database_name,folder_name)
 g_legend_names = getLegendNames(g_dict_of_param_dicts)
 g_inital_legend_name = g_legend_names[0]
 
-g_tab_names = [plotTab_object.title,histoTab_object.title,imageTab_object.title]
+g_tab_names = [plotTab_object.title,histoTab_object.title,imageTab_object.title,thoughtTab_object.title]
 
 ################ **Layout** ##################
 app.layout = html.Div(
@@ -207,6 +229,7 @@ app.layout = html.Div(
     +[plotTab_object.createHTMLStructure()]
     +[imageTab_object.createHTMLStructure()]
     +[histoTab_object.createHTMLStructure()]
+    +[thoughtTab_object.createHTMLStructure()]
 , className="container-fluid")
 
 
@@ -214,6 +237,7 @@ app.layout = html.Div(
 plotTab_object.assignCallbacks(app)
 imageTab_object.assignCallbacks(app)
 histoTab_object.assignCallbacks(app)
+thoughtTab_object.assignCallbacks(app)
 
 # Time toggle buffer
 @app.callback(

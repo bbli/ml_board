@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import datetime
-from utils import Database
+from Utils import Database
 import ipdb
 from bson.binary import Binary
 # import cPickle
@@ -26,6 +26,8 @@ class SummaryWriter(Database):
         self.runs.update_one({"Experimental Parameters.Time":self.date},{'$set':{"Images."+image_name:processed_image}},upsert= True)
     def add_experiment_parameter(self, parameter_name:str, value:int):
         self.runs.update_one({"Experimental Parameters.Time":self.date}, {'$set':{"Experimental Parameters."+parameter_name:value}})
+    def add_thought(self,string):
+        self.runs.update_one({"Experimental Parameters.Time":self.date},{'$push':{"Thoughts":string}},upsert= True)
     def viewRun(self):
         '''
         show all the data logged from the run
@@ -42,9 +44,11 @@ if __name__ == '__main__':
     w.add_experiment_parameter('Neurons',3)
     for i in range(5):
         w.add_scalar("Loss",i**2)
+    w.add_thought("hi")
+    w.add_thought("hello")
     w.viewRun()
-    ipdb.set_trace()
-    w.removeCollection('test_db','test_collection')
-    w.close()
+    # ipdb.set_trace()
+    # w.removeFolder('test_db','test_collection')
+    # w.close()
 
 

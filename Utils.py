@@ -34,9 +34,9 @@ class Database():
             print(collection)
     def getAllFolderIteratorsFromDatabase(self,database_name):
         folder_iterators_list= []
-        folder_names = self.client[self.database_name].list_collection_names()
+        folder_names = self.client[database_name].list_collection_names()
         for folder_name in folder_names:
-            iterator = self.client[self.database_name][folder_name].find()
+            iterator = self.client[database_name][folder_name].find()
             folder_iterators_list.append(iterator)
 
         return folder_iterators_list
@@ -135,6 +135,48 @@ def getFigureNames(nameObjects_for_each_run):
         list_of_names.append(one_run_dict.keys())
     names = sorted(set(list(itertools.chain(*list_of_names))))
     return names
+
+##############################################################
+def getThoughtListFromDatabase(database_name):
+    mongo = Database()
+    folder_iterators_list = mongo.getAllFolderIteratorsFromDatabase(database_name)
+    database_dict = {}
+    for folder_iterator in folder_iterators_list:
+        dict_of_thoughtlists = getDictOfThoughtLists(folder_iterator)
+        database_dict.update(dict_of_thoughtlists)
+        # appendThoughtListsToDatabaseDictionary(dict_of_thoughtlists,database_dict)
+    mongo.close()
+    return database_dict
+
+#########################
+def getDictOfThoughtLists(folder_iterator):
+    dict_of_thoughtlists = {}
+    for run_object in folder_iterator:
+        Experimental_Parameters = run_object['Experimental Parameters']
+        time = Experimental_Parameters['Time']
+        try:
+            thought_list = run_object['Thoughts']
+            dict_of_thoughtlists[time]=thought_list
+        except KeyError:
+            print("Run object does not have 'Thoughts' as a key")
+
+    return dict_of_thoughtlists
+def appendThoughtListsToDatabaseDictionary(new_dict,total_dict):
+
+    for key,value in new_dict.items():
+        total_dict[key]=value
+#########################
+def getOrderedKeys(dict_of_thoughtlists):
+    return sorted(dict_of_thoughtlists.keys())
+
+def createThoughts(list_of_thoughts):
+    paragraph_list = []
+    for thought in list_of_thoughts:
+        paragraph = html.P(thought)
+        paragraph_list.append(paragraph)
+    return paragraph_list
+
+##############################################################
 
 ################ **Functions used During Callbacks** ##################
 def getSelectedRunsFromDatatable(rows,selected_row_indices):
