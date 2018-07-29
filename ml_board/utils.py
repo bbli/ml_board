@@ -11,8 +11,6 @@ import pickle
 import base64
 import numpy as np
 
-import ipdb
-
 class Database():
     def __init__(self):
         self.client = MongoClient()
