@@ -14,6 +14,16 @@ setup(name='ml_board',
       author_email='bensonbinbinli@gmail.com',
       license='MIT',
       packages=['ml_board'],
+      install_requires=[
+                'dash_core_components==0.21.0rc1',
+                'dash-renderer',
+                'plotly',
+                'dash_html_components',
+                'pymongo',
+                'numpy',
+                'dash',
+                'Pillow'
+          ],
       classifiers=(
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: MIT License",
