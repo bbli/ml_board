@@ -1,12 +1,28 @@
+#!/usr/bin/env python
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
 from dash.dependencies import Input, Output, State
 import ipdb
-from Utils import *
+from ml_board.utils import *
 import plotly.graph_objs as go
 
+import argparse
+
+################ **Parsing Command Line Arguments** ##################
+parser = argparse.ArgumentParser()
+parser.add_argument('--database_name','-db',
+    required=True,
+    help='which database you want to use' )
+parser.add_argument('--folder_name','-f',
+    required=True,
+    help='which folder(aka a MongoDB collection) you want to view' )
+parser.add_argument('--port','-p',
+    default = 8000,
+    help='port number you want to serve on' )
+
+args = parser.parse_args()
 
 ################ **App Startup** ##################
 app = dash.Dash(__name__)
@@ -229,9 +245,11 @@ class ThoughtsTab(BaseTab):
 
 ################ **Global Variables** ##################
 # database_name='software_testing'
-database_name = 'pendulum'
+# database_name = 'pendulum'
 # folder_name = 'frozen_lake_thoughts'
-folder_name = 'runs'
+# folder_name = 'runs'
+database_name = args.database_name
+folder_name = args.folder_name
 plotTab_object = PlotTab(database_name,folder_name)
 histoTab_object = HistogramTab(database_name,folder_name)
 imageTab_object = ImageTab(database_name,folder_name)
@@ -363,7 +381,7 @@ def printer(children):
     # # return str(children)+str(rows[14:])
     # return "Debug Value 2:"+str(rows)
  
-if __name__=='__main__':
-    app.run_server(port=8000,debug=True)
-    # div_list=createListOfButtonGraph(plot_name)
-    # getFigure('Loss')
+# if __name__=='__main__':
+port_number = args.port
+app.run_server(port=port_number)
+    # app.run_server(port=8000,debug=True)
