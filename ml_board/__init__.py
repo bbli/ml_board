@@ -1,2 +1,1 @@
-from Logger import *
-from Dashboard import *
+from ml_board.Logger import SummaryWriter
