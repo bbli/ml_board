@@ -1,0 +1,10 @@
+setuptools==39.2.0
+ipdb==0.11
+dash_core_components==0.21.0rc1
+dash_table_experiments==0.6.0
+plotly==3.0.0
+dash_html_components==0.11.0
+pymongo==3.7.0
+numpy==1.14.5
+dash==0.21.1
+Pillow==5.2.0

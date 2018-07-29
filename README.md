@@ -4,22 +4,23 @@
 ---
 design choices,etc...
 
-## Installation
+# Installation
 ---
 '''
-git clone
-cd
-pip intall
+git clone https://github.com/bbli/ml_board.git
+cd ml_board
+conda create -n ml_board python pip
+pip install -r requirements.txt
 '''
 
-## Usage
+# Usage
 ---
-### Logging
+## Logging
 ```
 from ml_board import SummaryWriter
 ```
 
-### Visualizing
+## Visualizing
 ```
 ml_board --database_name name_of_mongodb_database --folder_name name_of_mongo_db_collection
 # shorthand notation
