@@ -187,6 +187,17 @@ def getSelectedRunsFromDatatable(rows,selected_row_indices):
     else:
         selected_runs = [rows[i] for i in selected_row_indices]
     return [run_dict['Time'] for run_dict in selected_runs]
+
+def timeit(f):
+    def wrapper(*args):
+        start = time.time()
+        x = f(*args)
+        end = time.time()
+        print("Elapsed Time: {}".format(end-start),file=sys.stdout)
+        sys.stdout.write("Elapsed Time: {}\n".format(end-start))
+        return x
+    return wrapper
+
 ##############################################################
 
 
