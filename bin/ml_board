@@ -14,23 +14,29 @@ import argparse
 import time
 import sys
 
-# def timeMethod(f):
-    # def wrapper(*args):
-        # start = time.time()
-        # x = f(*args)
-        # end = time.time()
-        # # print("Elapsed Time: {}".format(end-start),file=sys.stdout)
-        # sys.stdout.write("Elapsed Time of update_figure_and_data_structure function: {}\n".format(end-start))
-        # return x
-    # return wrapper
+def timeFigureUpdate(title):
+    def wrapper(func):
+        def timeit(*args):
+            start = time.time()
+            x = func(*args)
+            end = time.time()
+            # print("Elapsed Time: {}".format(end-start),file=sys.stdout)
+            sys.stdout.write("Elapsed Time of {} update_figure_and_data_structure function: {}\n".format(title,end-start))
+            return x
+        return timeit
+    return wrapper
 
-def profile(f):
-    def wrapper(*args):
-        lp = LineProfiler()
-        dec_f = lp(f)
-        output_value = dec_f(*args)
-        lp.print_stats()
-        return output_value
+def profile(title):
+    def wrapper(f):
+        def printProfile(*args):
+            lp = LineProfiler()
+            dec_f = lp(f)
+            output_value = dec_f(*args)
+            print("Line Profile for:",title)
+            print("----------------------")
+            lp.print_stats()
+            return output_value
+        return printProfile
     return wrapper
 
 
@@ -127,11 +133,9 @@ class BaseTab():
                 ## can change based on user interaction
                  Input('datatable', 'selected_row_indices')],
                 )
-        @profile
-        @partial_decomaker(self.title)
-        def update_figure_and_data_structure(children,legend_value,rows,selected_row_indices,partial_name):
-            start = time.time()
-            title = partial_name
+        # @profile(self.title)
+        # @timeFigureUpdate(self.title)
+        def update_figure_and_data_structure(children,legend_value,rows,selected_row_indices):
             ################ **Updating Data Structures** ##################
             global g_dict_of_param_dicts
             global g_legend_names
@@ -143,8 +147,6 @@ class BaseTab():
             ################ **Interacting with DataTable to get Selected Runs** ##################
             times_of_each_run = getSelectedRunsFromDatatable(rows,selected_row_indices)
             figure_content_for_this_name = self.getFigureContentForThisName(figure_name,times_of_each_run,legend_value)
-            end = time.time()
-            sys.stdout.write("Elapsed Time of {} update_figure_and_data_structure function: {}\n".format(title,end-start))
             return figure_content_for_this_name
 
     def getFigureContentForThisName(self,figure_name,times_of_each_run,legend_value):
@@ -210,6 +212,7 @@ class HistogramTab(BaseTab):
             histo_component_list.append(histo_component)
 
         return html.Div(histo_component_list,className='row')
+    # @profile("Temp title") ## Note this needs to be the first decorator
     @staticmethod
     def createHistogramComponent(time,figure_name,one_run_histogram,one_run_params,legend_value):
         ################ **Creating Data Object** ##################
