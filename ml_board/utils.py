@@ -10,6 +10,7 @@ from PIL import Image
 import pickle
 import base64
 import numpy as np
+import sys
 
 class Database():
     def __init__(self):

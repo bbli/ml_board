@@ -243,12 +243,12 @@ class ThoughtsTab(BaseTab):
 
 
 ################ **Global Variables** ##################
-# database_name='software_testing'
+database_name='software_testing'
 # database_name = 'pendulum'
 # folder_name = 'frozen_lake_thoughts'
-# folder_name = 'runs'
-database_name = args.database_name
-folder_name = args.folder_name
+folder_name = 'ml_board_gifs'
+# database_name = args.database_name
+# folder_name = args.folder_name
 plotTab_object = PlotTab(database_name,folder_name)
 histoTab_object = HistogramTab(database_name,folder_name)
 imageTab_object = ImageTab(database_name,folder_name)
@@ -381,6 +381,6 @@ def printer(children):
     # return "Debug Value 2:"+str(rows)
  
 # if __name__=='__main__':
-port_number = args.port
-app.run_server(port=port_number)
-    # app.run_server(port=8000,debug=True)
+# port_number = args.port
+# app.run_server(port=port_number)
+app.run_server(port=8000,debug=True)
