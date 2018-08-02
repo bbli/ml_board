@@ -10,50 +10,20 @@ import ipdb
 from line_profiler import LineProfiler
 
 import argparse
-################ **Stuff for utils** ##################
-import time
-import sys
-
-def timeFigureUpdate(title):
-    def wrapper(func):
-        def timeit(*args):
-            start = time.time()
-            x = func(*args)
-            end = time.time()
-            # print("Elapsed Time: {}".format(end-start),file=sys.stdout)
-            sys.stdout.write("Elapsed Time of {} update_figure_and_data_structure function: {}\n".format(title,end-start))
-            return x
-        return timeit
-    return wrapper
-
-def profile(title):
-    def wrapper(f):
-        def printProfile(*args):
-            lp = LineProfiler()
-            dec_f = lp(f)
-            output_value = dec_f(*args)
-            print("Line Profile for:",title)
-            print("----------------------")
-            lp.print_stats()
-            return output_value
-        return printProfile
-    return wrapper
-
-
 
 ################ **Parsing Command Line Arguments** ##################
-# parser = argparse.ArgumentParser()
-# parser.add_argument('--database_name','-db',
-    # required=True,
-    # help='which database you want to use' )
-# parser.add_argument('--folder_name','-f',
-    # required=True,
-    # help='which folder(aka a MongoDB collection) you want to view' )
-# parser.add_argument('--port','-p',
-    # default = 8000,
-    # help='port number you want to serve on' )
+parser = argparse.ArgumentParser()
+parser.add_argument('--database_name','-db',
+    required=True,
+    help='which database you want to use' )
+parser.add_argument('--folder_name','-f',
+    required=True,
+    help='which folder(aka a MongoDB collection) you want to view' )
+parser.add_argument('--port','-p',
+    default = 8000,
+    help='port number you want to serve on' )
 
-# args = parser.parse_args()
+args = parser.parse_args()
 
 ################ **App Startup** ##################
 app = dash.Dash(__name__)
@@ -278,12 +248,13 @@ class ThoughtsTab(BaseTab):
 
 
 ################ **Global Variables** ##################
-database_name='software_testing'
+# database_name='software_testing'
 # database_name = 'pendulum'
 # folder_name = 'frozen_lake_thoughts'
-folder_name = 'ml_board_gifs'
-# database_name = args.database_name
-# folder_name = args.folder_name
+# folder_name = 'ml_board_gifs'
+
+database_name = args.database_name
+folder_name = args.folder_name
 plotTab_object = PlotTab(database_name,folder_name)
 histoTab_object = HistogramTab(database_name,folder_name)
 imageTab_object = ImageTab(database_name,folder_name)
@@ -416,6 +387,6 @@ def printer(children):
     # return "Debug Value 2:"+str(rows)
  
 # if __name__=='__main__':
-# port_number = args.port
-# app.run_server(port=port_number)
-app.run_server(port=8000,debug=True)
+port_number = args.port
+app.run_server(port=port_number)
+# app.run_server(port=8000,debug=True)

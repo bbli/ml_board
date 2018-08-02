@@ -188,17 +188,34 @@ def getSelectedRunsFromDatatable(rows,selected_row_indices):
         selected_runs = [rows[i] for i in selected_row_indices]
     return [run_dict['Time'] for run_dict in selected_runs]
 
-def timeit(f):
-    def wrapper(*args):
-        start = time.time()
-        x = f(*args)
-        end = time.time()
-        print("Elapsed Time: {}".format(end-start),file=sys.stdout)
-        sys.stdout.write("Elapsed Time: {}\n".format(end-start))
-        return x
+################ **Optimizing Utils** ##################
+import time
+import sys
+
+def timeFigureUpdate(title):
+    def wrapper(func):
+        def timeit(*args):
+            start = time.time()
+            x = func(*args)
+            end = time.time()
+            # print("Elapsed Time: {}".format(end-start),file=sys.stdout)
+            sys.stdout.write("Elapsed Time of {} update_figure_and_data_structure function: {}\n".format(title,end-start))
+            return x
+        return timeit
     return wrapper
 
-##############################################################
+def profile(title):
+    def wrapper(f):
+        def printProfile(*args):
+            lp = LineProfiler()
+            dec_f = lp(f)
+            output_value = dec_f(*args)
+            print("Line Profile for:",title)
+            print("----------------------")
+            lp.print_stats()
+            return output_value
+        return printProfile
+    return wrapper
 
 
 

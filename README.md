@@ -8,10 +8,10 @@ I decided to create this machine learning dashboard for my own personal usage af
 
 Although tensorboard has great visualization capabilities(embeddings,computational graphs,etc), it is not the best tool for tracking, presenting, and organizing the knowledge one obtains as they run through many machine learning experiments. So the focus of this dashboard will not be on [visualization](https://github.com/tensorflow/tensorboard), or experiment [organization and control](https://github.com/IDSIA/sacred), but on the relationship between model parameters and its output characteristics.
 ### Features
-* **Filterable Table**: Allow individual selection of runs, can filter based on equality/inequality.
+* **Filterable and Connected Table**: Allow individual selection of runs, and numerical filtering based on equality/inequality. Once these choices are made, the Plots, Histograms, and Image Tabs are updated accordingly, allowing you to choose which run's visualizations you see. Also, because the plots are plotly Graph objects, one can click on the individual items in the plot legend to remove the corresponding plot from view
 
 ![table](gifs/table.gif)
-* **Legend Dropdown**: Allows you to choose the hyperparameter setting to be displayed for each run in the Plots/Histogram/Image Tabs. I only allowed one item to show up because I did not want the figures to be cluttered with words, which I believe is worth the tradeoff of uniqueness.
+* **Connected Legend Dropdown**: Allows you to choose the hyperparameter setting to be displayed as the title(or legend) for each run in the Plots/Histogram/Image Tabs. I limited the title to one item because I did not want the figures to be cluttered with words, which I believe is worth the tradeoff of the occasional lack of uniqueness.
 
 ![dropdown](gifs/dropdown.gif)
 * **Figure/AutoUpdate Toggle**: As in tensorboard, you can click on the figure's title to minimize it. Also, every 10 seconds, the app will reread the data from the database, unless the autoupdate toggle is turned off.
@@ -19,7 +19,7 @@ Although tensorboard has great visualization capabilities(embeddings,computation
 * **Log of Thoughts**: Visual information takes up a substantial amount of space -> inevitably will lead to scrolling, a flow state killer. But if the user is only allowed to view the runs from a particular folder -> can easily forget purpose of the experiments. Thus, unlike the Plots/Images/Histograms, which only show the runs of a specific folder, this tab aggregates logged thoughts across all folders within the given database and displays them in order by time. 
 
 
-* **Extensibility(at least for me)**: Because I wrote this app, it will be much easier for me to extend its capabilities, since I have an intricate mental model of the codebase. Furthermore, the Dash library comes with awesome interactive components, such as the Table and Tabs components that were used in my project. By having to not write these primitives myself, I could focus my attention on the **transformation of data**, which is within my domain of expertise, rather than building the infrastructure myself.
+* **Extensibility**: Because I wrote this app, it will be much easier for me personally to extend its capabilities(at least in the short term before the project grows too large), since I have an intricate mental model of the codebase. Furthermore, the Dash library comes with awesome interactive components, such as the Table and Tabs components that were used in my project. By having to not write these primitives myself, I could focus my attention on the **transformation of data**, which is within my domain of expertise, rather than building the infrastructure myself.
 
 # Installation
 Until the tabs feature is integrated into the master branch of [dash](https://github.com/plotly/dash), and I do more testing, and write up the documentation, you will have to manually install the package with the following commands:
@@ -55,15 +55,14 @@ From the command line, do
 ```
 ml_board --database_name name_of_mongodb_database --folder_name name_of_mongo_db_collection
 # shorthand notation
-ml_board --d name_of_mongodb_database --f name_of_mongo_db_collection
+ml_board --db name_of_mongodb_database --f name_of_mongo_db_collection
 # specific port. Default 8000
-ml_board --d name_of_mongodb_database --f name_of_mongo_db_collection -p 8050
+ml_board --db name_of_mongodb_database --f name_of_mongo_db_collection -p 8050
 ```
-### Concerns
-* if autoUpdate is on, do not filter rows as it will be overwritten
-* don't click on the filter rows button twice, or it will filter permemantly. If this does happen, refresh the webpage to reset the app's state.
-* only filter table when on Plots Tab(sometimes rendering of plot get buggy otherwise)
-
+### Comments
+* If autoUpdate is on, do not filter rows as it will be overwritten
+* Don't click on the filter rows button twice, or it will filter permemantly. If this does happen, refresh the webpage to reset the app's state.
+* FYI, the Histogram Tab generally takes the longest time to update(b/c multiple plotly Figure objects are created for each histogram name).
 
 # TODO
 * allow user to change folders from within the dashboard
