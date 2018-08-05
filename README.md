@@ -21,7 +21,7 @@ Although tensorboard has great visualization capabilities(embeddings,computation
 ![thoughts](gifs/thoughts.png)
 
 
-* **Extensibility**: The Dash library comes with awesome interactive components, such as the Table and Tabs components that were used in my project. Because I did not need to write these primitives myself, I could focus my attention on the domain problem/vision at hand, something that Peter Norvig talks about in [As We May Program](https://vimeo.com/215418110) (see 17:50-19:00). Though this is a project for geared towards my own personal usage, but can be easily extended(b/c it is written in a language data scientists are intimately familiar with+offical tutorial is excellent+great community) by end-users as they see fit.
+* **Extensibility**: The Dash library comes with awesome interactive components, such as the Table and Tabs components that were used in my project. Because I did not need to write these primitives myself, I could focus my attention on the domain problem/vision at hand, something that Peter Norvig talks about in [As We May Program](https://vimeo.com/215418110) (see 17:50-19:00). Though this is a project geared towards my own personal usage, it can be easily extended(b/c it is written in a language data scientists are intimately familiar with+official tutorial is excellent+great community) by end-users as they see fit. After all, I created this with no prior web app experience!
 
 # Installation
 Until the tabs feature is integrated into the master branch of [dash](https://github.com/plotly/dash), and I do more testing, and write up the documentation, you will have to manually install the package with the following commands:
