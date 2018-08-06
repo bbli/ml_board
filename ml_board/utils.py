@@ -1,3 +1,4 @@
+from line_profiler import LineProfiler
 from pymongo import MongoClient
 from threading import Thread
 import dash
