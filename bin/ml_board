@@ -7,7 +7,6 @@ from dash.dependencies import Input, Output, State
 from ml_board.utils import *
 import plotly.graph_objs as go
 import ipdb
-from line_profiler import LineProfiler
 
 import argparse
 
