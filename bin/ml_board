@@ -301,9 +301,9 @@ app.layout = html.Div(
      ,className='row')]+
     [html.Div(
         [dt.DataTable(
-            # rows= [value for key,value in g_dict_of_param_dicts.items()],
+            rows= [value for key,value in g_dict_of_param_dicts.items()],
             # optional - sets the order of columns
-            # columns= g_legend_names,
+            columns= g_legend_names,
 
             row_selectable=True,
             filterable=True,
@@ -362,6 +362,13 @@ def update_table(children):
     # print("line break")
     # print(type(rows))
     return rows
+@app.callback(
+        Output("datatable","selected_row_indices"),
+        [Input("datatable","rows")],
+        [State("datatable","selected_row_indices")]
+        )
+def preserver_selected_row_index(rows,index):
+    return index
 ## Table columns
 @app.callback(
         Output("datatable","columns"),
