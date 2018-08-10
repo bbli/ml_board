@@ -301,9 +301,9 @@ app.layout = html.Div(
      ,className='row')]+
     [html.Div(
         [dt.DataTable(
-            rows= [value for key,value in g_dict_of_param_dicts.items()],
+            # rows= [value for key,value in g_dict_of_param_dicts.items()],
             # optional - sets the order of columns
-            columns= g_legend_names,
+            # columns= g_legend_names,
 
             row_selectable=True,
             filterable=True,
@@ -316,7 +316,7 @@ app.layout = html.Div(
 
     [html.Div(
         [html.P("Debug Value",id='debug',className="text-center")]
-    ,className="row",style={'display':'none'})]+
+    ,className="row",style={'display':'inline'})]+
     [html.Div(
         [html.P("Debug Value",id='debug2',className="text-center")]
     ,className="row",style={'display':'none'})]+
@@ -373,7 +373,7 @@ def update_table_columns(children):
 ## Debug
 @app.callback(
         Output('debug','children'),
-        [Input('buffer','children')]
+        [Input('datatable','selected_row_indices')]
         )
 def printer(children):
     return "Debug Value 1:"+str(children)
