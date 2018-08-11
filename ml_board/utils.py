@@ -12,6 +12,35 @@ import pickle
 import base64
 import numpy as np
 import sys
+################ **Optimizing Utils** ##################
+import time
+import sys
+
+def timeFigureUpdate(title):
+    def wrapper(func):
+        def timeit(*args):
+            start = time.time()
+            x = func(*args)
+            end = time.time()
+            # print("Elapsed Time: {}".format(end-start),file=sys.stdout)
+            sys.stdout.write("Elapsed Time of {} update_figure_and_data_structure function: {}\n".format(title,end-start))
+            return x
+        return timeit
+    return wrapper
+
+def profile(title):
+    def wrapper(f):
+        def printProfile(*args):
+            lp = LineProfiler()
+            dec_f = lp(f)
+            output_value = dec_f(*args)
+            print("Line Profile for:",title)
+            print("----------------------")
+            lp.print_stats()
+            return output_value
+        return printProfile
+    return wrapper
+##############################################################
 
 class Database():
     def __init__(self):
@@ -137,6 +166,20 @@ def getFigureNames(nameObjects_for_each_run):
     return names
 
 ##############################################################
+def createHTMLRowList(self):
+    html_row_list = []
+    for time in self.ordered_thoughtList_keys:
+        thought_list = self.dict_of_all_thought_lists[time]
+
+        title_row = createThoughtsTitle(thought_list,time)
+        html_row_list.append(title_row)
+
+        paragraph_for_each_thought = createThoughts(thought_list)
+        paragraph_row = html.Div(paragraph_for_each_thought,className='row')
+        html_row_list.append(paragraph_row)
+    return html_row_list
+## only take 0.1 seconds. So no issue in updating it
+# @profile("Thoughts")
 def getDictOfAllThoughtLists(database_name):
     mongo = Database()
     folder_iterators_list = mongo.getAllFolderIteratorsFromDatabase(database_name)
@@ -189,34 +232,6 @@ def getSelectedRunsFromDatatable(rows,selected_row_indices):
         selected_runs = [rows[i] for i in selected_row_indices]
     return [run_dict['Time'] for run_dict in selected_runs]
 
-################ **Optimizing Utils** ##################
-import time
-import sys
-
-def timeFigureUpdate(title):
-    def wrapper(func):
-        def timeit(*args):
-            start = time.time()
-            x = func(*args)
-            end = time.time()
-            # print("Elapsed Time: {}".format(end-start),file=sys.stdout)
-            sys.stdout.write("Elapsed Time of {} update_figure_and_data_structure function: {}\n".format(title,end-start))
-            return x
-        return timeit
-    return wrapper
-
-def profile(title):
-    def wrapper(f):
-        def printProfile(*args):
-            lp = LineProfiler()
-            dec_f = lp(f)
-            output_value = dec_f(*args)
-            print("Line Profile for:",title)
-            print("----------------------")
-            lp.print_stats()
-            return output_value
-        return printProfile
-    return wrapper
 
 
 

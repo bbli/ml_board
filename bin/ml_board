@@ -4,25 +4,28 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
 from dash.dependencies import Input, Output, State
-from ml_board.utils import *
+# from ml_board.utils import *
+import sys
+sys.path.append('/home/benson/Dropbox/Code/Projects/ml_board/ml_board')
+from utils import *
 import plotly.graph_objs as go
 import ipdb
 
 import argparse
 
 ################ **Parsing Command Line Arguments** ##################
-parser = argparse.ArgumentParser()
-parser.add_argument('--database_name','-db',
-    required=True,
-    help='which database you want to use' )
-parser.add_argument('--folder_name','-f',
-    required=True,
-    help='which folder(aka a MongoDB collection) you want to view' )
-parser.add_argument('--port','-p',
-    default = 8000,
-    help='port number you want to serve on' )
+# parser = argparse.ArgumentParser()
+# parser.add_argument('--database_name','-db',
+    # required=True,
+    # help='which database you want to use' )
+# parser.add_argument('--folder_name','-f',
+    # required=True,
+    # help='which folder(aka a MongoDB collection) you want to view' )
+# parser.add_argument('--port','-p',
+    # default = 8000,
+    # help='port number you want to serve on' )
 
-args = parser.parse_args()
+# args = parser.parse_args()
 
 ################ **App Startup** ##################
 app = dash.Dash(__name__)
@@ -229,31 +232,38 @@ class ThoughtsTab(BaseTab):
         self.dict_of_all_thought_lists = getDictOfAllThoughtLists(database_name)
         self.ordered_thoughtList_keys = getOrderedKeys(self.dict_of_all_thought_lists)
     def createHTMLStructure(self):
-        html_row_list = []
-        for time in self.ordered_thoughtList_keys:
-            thought_list = self.dict_of_all_thought_lists[time]
-
-            title_row = createThoughtsTitle(thought_list,time)
-            html_row_list.append(title_row)
-
-            paragraph_for_each_thought = createThoughts(thought_list)
-            paragraph_row = html.Div(paragraph_for_each_thought,className='row')
-            html_row_list.append(paragraph_row)
+        html_row_list = createHTMLRowList(self)
+        # print(html_row_list,file=sys.stdout)
         return html.Div(html_row_list,id=self.title)
     def assignCallbacks(self,app):
         self.assignTabShowCallback(app)
+        self.assignFigureCallback(app)
+    ## no button callback, so no need to define on seperate figures
+    def assignFigureCallback(self,app):
+        @app.callback(
+                Output(self.title,'children'),
+                [Input('buffer','children')]
+                )
+        def update_thoughts_tab(children):
+            self.dict_of_all_thought_lists = getDictOfAllThoughtLists(database_name)
+            self.ordered_thoughtList_keys = getOrderedKeys(self.dict_of_all_thought_lists)
+            html_row_list = createHTMLRowList(self)
+            # print(self.dict_of_all_thought_lists)
+            # print("break")
+            # print(html_row_list,file=sys.stdout)
+            return html_row_list
         
         
 
 
 ################ **Global Variables** ##################
-# database_name='software_testing'
+database_name='software_testing'
 # database_name = 'pendulum'
-# folder_name = 'frozen_lake_thoughts'
+folder_name = 'lunarlander'
 # folder_name = 'ml_board_gifs'
 
-database_name = args.database_name
-folder_name = args.folder_name
+# database_name = args.database_name
+# folder_name = args.folder_name
 plotTab_object = PlotTab(database_name,folder_name)
 histoTab_object = HistogramTab(database_name,folder_name)
 imageTab_object = ImageTab(database_name,folder_name)
@@ -393,6 +403,6 @@ def printer(children):
     # return "Debug Value 2:"+str(rows)
  
 # if __name__=='__main__':
-port_number = args.port
-app.run_server(port=port_number)
-# app.run_server(port=8000,debug=True)
+# port_number = args.port
+# app.run_server(port=port_number)
+app.run_server(port=8000,debug=True)
