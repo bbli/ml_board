@@ -40,7 +40,7 @@ If something goes wrong during usage, and you can't debug it, you can try instal
 # Usage
 ### Logging
 Usage is very similar to tensorboard. Difference are:
-* No need to specify a count, as ml_board will append the result to a MongoDB list. The other is that ml_board has an additional `add_experimental_parameter` which is intended to log hyperparameters to a table
+* No need to specify a count, as ml_board will append the result to a MongoDB list. The other is that ml_board has an additional `add_experiment_parameter` which is intended to log hyperparameters to a table
 ```
 from ml_board import SummaryWriter
 w= SummaryWriter('name_of_mongodb_database','name_of_mongo_db_collection')
@@ -51,8 +51,8 @@ w.add_histogram("example_histogram_name",example_loss_value)
 
 w.add_image("example_picture_name",2d_numpy_matrix_in_range_0_to_1)
 w.add_thought("example_thoughts")
-## the current time is automatically logged as an experimental parameter when you create a SummaryWriter object
-w.add_experimental_parameter("example_hyperparameter_name",example_hyperparamter_value)
+## the current time is automatically logged as an experiment parameter when you create a SummaryWriter object
+w.add_experiment_parameter("example_hyperparameter_name",example_hyperparamter_value)
 w.close()
 ```
 For more details, look at the `Logger.py` file in the ml_board folder
@@ -61,9 +61,9 @@ From the command line, enter
 ```
 ml_board --database_name name_of_mongodb_database --folder_name name_of_mongo_db_collection
 # shorthand notation
-ml_board --db name_of_mongodb_database --f name_of_mongo_db_collection
+ml_board -db name_of_mongodb_database -f name_of_mongo_db_collection
 # specific port. Default 8000
-ml_board --db name_of_mongodb_database --f name_of_mongo_db_collection -p 8050
+ml_board -db name_of_mongodb_database -f name_of_mongo_db_collection -p 8050
 ```
 ### Comments
 * If autoUpdate is on, do not filter rows as it will be overwritten
