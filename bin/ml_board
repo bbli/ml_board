@@ -157,7 +157,7 @@ class PlotTab(BaseTab):
         data_dict= {'data':plot_for_each_run}
         ## Note id is required, even though I don't use it in my callbacks
         figure_object = dcc.Graph(id=figure_name+' Plot',figure= data_dict)
-        return html.Div(html.Div(figure_object,className='col-md-12'),className='row')
+        return html.Div(html.Div(figure_object,className='col-md-10'),className='row')
     @staticmethod
     def createScatterObject(name,one_run_plots,one_run_params,legend_value):
         label = legend_value+':'+str(one_run_params[legend_value])
@@ -197,7 +197,7 @@ class HistogramTab(BaseTab):
 
         ## Note id is required, even though I don't use it in my callbacks
         figure_object = dcc.Graph(id=time+':'+figure_name+' Histogram',figure= data_dict)
-        return html.Div(figure_object,className='col-md-4')
+        return html.Div(figure_object,className='col-md-6')
         
 
 class ImageTab(BaseTab):
@@ -390,7 +390,7 @@ def update_table_columns(children):
 ## Debug
 @app.callback(
         Output('debug','children'),
-        [Input('datatable','selected_row_indices')]
+        [Input('datatable','rows')]
         )
 def printer(children):
     return "Debug Value 1:"+str(children)

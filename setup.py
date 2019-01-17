@@ -22,7 +22,8 @@ setup(name='ml_board',
                 'pymongo',
                 'numpy',
                 'dash',
-                'Pillow'
+                'Pillow',
+                'dash_table_experiments==0.6.0'
           ],
       classifiers=(
           "Programming Language :: Python :: 3",
