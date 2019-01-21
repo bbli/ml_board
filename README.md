@@ -28,8 +28,8 @@ Until the tabs feature is integrated into the master branch of [dash](https://gi
 ```
 git clone https://github.com/bbli/ml_board.git
 cd ml_board
-conda create -n ml_board python=3.6.6 pip
-pip install .
+## Activate/create conda environment you want to install in
+pip3 install .
 ```
 After this, install MongoDB(and make sure it is enabled and started) and you are good to go!
 

@@ -166,7 +166,7 @@ class PlotTab(BaseTab):
                 mode = 'lines',
                 name = label,
                 text = label,
-                hoverinfo='text'
+                hoverinfo='y'
                 )
 
 class HistogramTab(BaseTab):
