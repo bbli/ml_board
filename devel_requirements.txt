@@ -33,7 +33,7 @@ pipreqs==0.4.9
 plotly==3.0.0
 prompt-toolkit==1.0.15
 ptyprocess==0.6.0
-Pygments==2.2.0
+Pygments==2.7.4
 pymongo==3.7.0
 pytz==2018.5
 requests>=2.20.0
